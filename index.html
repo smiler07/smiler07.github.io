@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="smiler07의 프로페셔널 포트폴리오와 웹 프로젝트를 소개하는 정적 웹사이트입니다."
+    >
+    <title>smiler07 | Professional Portfolio</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script type="module" src="./script.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
+
+    <header class="site-header">
+      <div class="nav-shell">
+        <a class="brand" href="#home" aria-label="홈으로 이동">smiler07</a>
+
+        <button
+          class="nav-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="primary-navigation"
+        >
+          <span class="sr-only">메뉴 열기</span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+          <span aria-hidden="true"></span>
+        </button>
+
+        <nav id="primary-navigation" class="site-nav" aria-label="주요 메뉴">
+          <a href="#home">Home</a>
+          <a href="#about">About</a>
+          <a href="#projects">Projects</a>
+          <a href="#games">Games</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main-content">
+      <section id="home" class="hero section-shell" aria-labelledby="home-title">
+        <p class="eyebrow">Professional Portfolio</p>
+        <h1 id="home-title">안녕하세요, smiler07입니다.</h1>
+        <p class="hero-copy">
+          프로필 소개와 전문 분야는 콘텐츠 확인 후 이 공간에 반영됩니다.
+        </p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#projects">프로젝트 보기</a>
+          <a class="button button-secondary" href="#games">Games 살펴보기</a>
+        </div>
+      </section>
+
+      <section id="about" class="content-section section-shell" aria-labelledby="about-title">
+        <div class="section-heading">
+          <p class="eyebrow">About</p>
+          <h2 id="about-title">프로필</h2>
+        </div>
+        <div class="content-card">
+          <p>
+            경력, 기술, 관심 분야 등 개인 프로필 내용은 확인된 정보를 받은 뒤 추가합니다.
+          </p>
+        </div>
+      </section>
+
+      <section id="projects" class="content-section section-shell" aria-labelledby="projects-title">
+        <div class="section-heading">
+          <p class="eyebrow">Projects</p>
+          <h2 id="projects-title">프로젝트</h2>
+        </div>
+        <div class="project-grid">
+          <article class="content-card">
+            <p class="card-label">Content pending review</p>
+            <h3>대표 프로젝트</h3>
+            <p>승인된 프로젝트 이름, 설명과 링크를 다음 콘텐츠 루프에서 추가합니다.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="games" class="content-section section-shell" aria-labelledby="games-title">
+        <div class="section-heading">
+          <p class="eyebrow">Games</p>
+          <h2 id="games-title">브라우저 아케이드</h2>
+          <p class="section-copy">게임을 선택하고 키보드 또는 화면 버튼으로 플레이하세요.</p>
+        </div>
+
+        <div class="game-hub">
+          <div class="game-tabs" role="tablist" aria-label="게임 선택">
+            <button
+              id="snake-tab"
+              class="game-tab is-active"
+              type="button"
+              role="tab"
+              aria-selected="true"
+              aria-controls="snake-panel"
+              data-game="snake"
+            >
+              <span aria-hidden="true">S</span>
+              Snake
+            </button>
+            <button
+              id="shooting-tab"
+              class="game-tab"
+              type="button"
+              role="tab"
+              aria-selected="false"
+              aria-controls="shooting-panel"
+              data-game="shooting"
+              tabindex="-1"
+            >
+              <span aria-hidden="true">▲</span>
+              Shooting
+            </button>
+          </div>
+
+          <section
+            id="snake-panel"
+            class="game-panel"
+            role="tabpanel"
+            aria-labelledby="snake-tab"
+            data-game-panel="snake"
+          >
+            <div class="game-intro">
+              <div>
+                <p class="card-label">Classic grid game</p>
+                <h3>Snake</h3>
+                <p>방향키 또는 WASD로 먹이를 모으세요. 반대 방향으로 즉시 회전할 수 없습니다.</p>
+              </div>
+              <dl class="game-hud" aria-label="Snake 게임 상태">
+                <div><dt>점수</dt><dd data-score>0</dd></div>
+                <div><dt>상태</dt><dd data-status aria-live="polite">시작 대기</dd></div>
+              </dl>
+            </div>
+            <div class="game-stage game-stage-square">
+              <canvas width="400" height="400" aria-label="지렁이 게임 화면">
+                Canvas를 지원하는 브라우저가 필요합니다.
+              </canvas>
+            </div>
+            <div class="game-actions" aria-label="Snake 게임 동작">
+              <button type="button" class="button button-primary" data-action="start">시작</button>
+              <button type="button" class="button button-secondary" data-action="pause">일시정지</button>
+              <button type="button" class="button button-secondary" data-action="restart">다시 시작</button>
+            </div>
+            <div class="touch-controls snake-controls" aria-label="Snake 모바일 방향 조작">
+              <button type="button" data-direction="up" aria-label="위">↑</button>
+              <button type="button" data-direction="left" aria-label="왼쪽">←</button>
+              <button type="button" data-direction="down" aria-label="아래">↓</button>
+              <button type="button" data-direction="right" aria-label="오른쪽">→</button>
+            </div>
+          </section>
+
+          <section
+            id="shooting-panel"
+            class="game-panel"
+            role="tabpanel"
+            aria-labelledby="shooting-tab"
+            data-game-panel="shooting"
+            hidden
+          >
+            <div class="game-intro">
+              <div>
+                <p class="card-label">Canvas vertical shooter</p>
+                <h3>Shooting</h3>
+                <p>방향키 또는 WASD로 이동하고 Space 또는 Z로 발사하세요. P 또는 Escape로 멈춥니다.</p>
+              </div>
+              <dl class="game-hud" aria-label="Shooting 게임 상태">
+                <div><dt>점수</dt><dd data-score>0</dd></div>
+                <div><dt>생명</dt><dd data-lives>3</dd></div>
+                <div><dt>상태</dt><dd data-status aria-live="polite">시작 대기</dd></div>
+              </dl>
+            </div>
+            <div class="game-stage game-stage-shooting">
+              <canvas width="384" height="448" aria-label="슈팅 게임 화면">
+                Canvas를 지원하는 브라우저가 필요합니다.
+              </canvas>
+            </div>
+            <div class="game-actions" aria-label="Shooting 게임 동작">
+              <button type="button" class="button button-primary" data-action="start">시작</button>
+              <button type="button" class="button button-secondary" data-action="pause">일시정지</button>
+              <button type="button" class="button button-secondary" data-action="restart">다시 시작</button>
+            </div>
+            <div class="shooting-touch-layout" aria-label="Shooting 모바일 조작">
+              <div class="touch-controls shooting-directions">
+                <button type="button" data-control="up" aria-label="위">↑</button>
+                <button type="button" data-control="left" aria-label="왼쪽">←</button>
+                <button type="button" data-control="down" aria-label="아래">↓</button>
+                <button type="button" data-control="right" aria-label="오른쪽">→</button>
+              </div>
+              <button type="button" class="fire-button" data-control="fire">FIRE</button>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="section-shell footer-inner">
+        <p>&copy; <span id="current-year"></span> smiler07</p>
+        <a href="#home">맨 위로</a>
+      </div>
+    </footer>
+  </body>
+</html>

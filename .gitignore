@@ -1,0 +1,11 @@
+github_token.txt
+env_settings.txt
+.codex-askpass.cmd
+
+shooting_game/venv/
+**/.pytest_cache/
+**/__pycache__/
+*.pyc
+
+.DS_Store
+Thumbs.db
