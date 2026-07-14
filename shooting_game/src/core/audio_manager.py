@@ -38,6 +38,14 @@ def _square(freq: float, duration: float, decay: float = 10.0) -> np.ndarray:
     return np.sign(np.sin(2 * np.pi * freq * t)) * env
 
 
+def _saw(freq: float, duration: float, decay: float = 10.0) -> np.ndarray:
+    n = int(SAMPLE_RATE * duration)
+    t = np.linspace(0, duration, n, endpoint=False)
+    env = np.exp(-decay * t)
+    phase = (freq * t) % 1.0
+    return (2.0 * phase - 1.0) * env
+
+
 def _noise(duration: float, decay: float = 6.0) -> np.ndarray:
     n = int(SAMPLE_RATE * duration)
     t = np.linspace(0, duration, n, endpoint=False)
@@ -96,18 +104,20 @@ class AudioManager:
         self._sounds["charge_loop"] = _to_sound(_sine(520, 0.12, 12), 0.08)
 
     def _build_bgm(self) -> None:
-        """Looping chip-tune BGMs (~6-8 seconds)."""
+        """Looping arcade-style BGMs with a punchier rhythm section."""
         self._sounds["bgm_menu"] = self._make_bgm(
             duration=6.0,
-            bass_notes=[130.81, 130.81, 146.83, 130.81, 110.0, 110.0, 123.47, 146.83],
-            melody=[523, 659, 784, 659, 587, 523, 659, 784],
+            bass_notes=[130.81, 130.81, 146.83, 164.81, 146.83, 130.81, 123.47, 130.81],
+            melody=[659, 784, 880, 784, 659, 587, 659, 784],
+            accent=[988, 1175, 1047, 880, 988, 784, 880, 1047],
             volume=0.20,
         )
         self._sounds["bgm_play"] = self._make_bgm(
             duration=8.0,
-            bass_notes=[110, 110, 130.81, 110, 98, 98, 110, 130.81],
-            melody=[440, 523, 659, 523, 392, 440, 523, 440],
-            volume=0.22,
+            bass_notes=[110, 110, 130.81, 146.83, 130.81, 110, 98, 110],
+            melody=[440, 523, 659, 784, 659, 523, 494, 440],
+            accent=[659, 784, 880, 988, 1047, 988, 880, 784],
+            volume=0.23,
         )
 
     def _make_bgm(
@@ -116,25 +126,42 @@ class AudioManager:
         duration: float,
         bass_notes: list[float],
         melody: list[float],
+        accent: list[float],
         volume: float,
     ) -> pygame.mixer.Sound:
         n = int(SAMPLE_RATE * duration)
         t = np.linspace(0, duration, n, endpoint=False)
         wave = np.zeros(n)
 
-        steps = len(bass_notes)
-        for i, freq in enumerate(bass_notes):
-            start = int(i * n / steps)
-            end = int((i + 1) * n / steps)
-            seg_t = t[start:end] - t[start]
-            wave[start:end] += np.sign(np.sin(2 * np.pi * freq * seg_t)) * 0.15 * np.exp(-1.5 * seg_t)
+        def add_step(notes: list[float], amp: float, shape: str, decay: float) -> None:
+            steps = len(notes)
+            for i, freq in enumerate(notes):
+                start = int(i * n / steps)
+                end = int((i + 1) * n / steps)
+                seg_t = t[start:end] - t[start]
+                if shape == "square":
+                    wave[start:end] += np.sign(np.sin(2 * np.pi * freq * seg_t)) * amp * np.exp(-decay * seg_t)
+                elif shape == "saw":
+                    phase = (freq * seg_t) % 1.0
+                    wave[start:end] += (2.0 * phase - 1.0) * amp * np.exp(-decay * seg_t)
+                else:
+                    wave[start:end] += np.sin(2 * np.pi * freq * seg_t) * amp * np.exp(-decay * seg_t)
 
-        steps = len(melody)
-        for i, freq in enumerate(melody):
-            start = int(i * n / steps)
-            end = int((i + 1) * n / steps)
-            seg_t = t[start:end] - t[start]
-            wave[start:end] += np.sin(2 * np.pi * freq * seg_t) * 0.1 * np.exp(-3 * seg_t)
+        # Punchy arcade backing track: bass + lead + octave hook
+        add_step(bass_notes, 0.18, "square", 1.8)
+        add_step(melody, 0.11, "saw", 3.8)
+        add_step(accent, 0.05, "square", 5.0)
+
+        # Simple repeating drum grid to make it feel more like an arcade loop.
+        beat_len = duration / 16.0
+        for beat in range(16):
+            start = int(beat * beat_len * SAMPLE_RATE)
+            kick = _noise(0.12, 18) * (0.7 if beat in (0, 8) else 0.35)
+            snare = _noise(0.08, 24) * (0.6 if beat in (4, 12) else 0.12)
+            hat = _noise(0.03, 35) * (0.18 if beat % 2 == 0 else 0.12)
+            for layer in (kick, snare, hat):
+                end = min(start + len(layer), n)
+                wave[start:end] += layer[: end - start]
 
         return _to_sound(wave, volume)
 
