@@ -52,12 +52,41 @@ Web 포팅의 상태 머신, TDD 계약, Retry와 HITL 기준은 상위 [AORR.md
 
 ## 실행
 
+PowerShell:
+
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m src.main
+```
+
+Git Bash:
+
 ```bash
 python -m venv venv
-venv\Scripts\activate
+source venv/Scripts/activate
 pip install -r requirements.txt
 python -m src.main
 ```
+
+활성화가 막히거나 셸이 꼬이면 아래처럼 가상환경 파이썬을 직접 실행해도 됩니다.
+
+```powershell
+.\venv\Scripts\python.exe -m pip install -r requirements.txt
+.\venv\Scripts\python.exe -m src.main
+```
+
+```bash
+./venv/Scripts/python.exe -m pip install -r requirements.txt
+./venv/Scripts/python.exe -m src.main
+```
+
+참고:
+
+- 이 프로젝트는 `shooting_game` 폴더 안에서 실행해야 합니다.
+- `venv`가 예전 PC 경로를 기억해서 깨진 경우에는 `venv`를 삭제한 뒤 다시 생성하면 됩니다.
+- Python이 없으면 먼저 Python 3.12 이상을 설치해야 합니다.
 
 ## 문서
 
