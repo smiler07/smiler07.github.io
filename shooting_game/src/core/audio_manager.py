@@ -53,6 +53,7 @@ class AudioManager:
         self._shoot_cooldown = 0.0
         self._sounds: dict[str, pygame.mixer.Sound] = {}
         self._bgm_channel: pygame.mixer.Channel | None = None
+        self._current_bgm: str | None = None
         self._build_sounds()
         self._build_bgm()
 
@@ -95,29 +96,47 @@ class AudioManager:
         self._sounds["charge_loop"] = _to_sound(_sine(520, 0.12, 12), 0.08)
 
     def _build_bgm(self) -> None:
-        """Looping chip-tune BGM (~8 seconds)."""
-        duration = 8.0
+        """Looping chip-tune BGMs (~6-8 seconds)."""
+        self._sounds["bgm_menu"] = self._make_bgm(
+            duration=6.0,
+            bass_notes=[130.81, 130.81, 146.83, 130.81, 110.0, 110.0, 123.47, 146.83],
+            melody=[523, 659, 784, 659, 587, 523, 659, 784],
+            volume=0.20,
+        )
+        self._sounds["bgm_play"] = self._make_bgm(
+            duration=8.0,
+            bass_notes=[110, 110, 130.81, 110, 98, 98, 110, 130.81],
+            melody=[440, 523, 659, 523, 392, 440, 523, 440],
+            volume=0.22,
+        )
+
+    def _make_bgm(
+        self,
+        *,
+        duration: float,
+        bass_notes: list[float],
+        melody: list[float],
+        volume: float,
+    ) -> pygame.mixer.Sound:
         n = int(SAMPLE_RATE * duration)
         t = np.linspace(0, duration, n, endpoint=False)
         wave = np.zeros(n)
 
-        # Bass line
-        bass_notes = [110, 110, 130.81, 110, 98, 98, 110, 130.81]
+        steps = len(bass_notes)
         for i, freq in enumerate(bass_notes):
-            start = int(i * n / 8)
-            end = int((i + 1) * n / 8)
+            start = int(i * n / steps)
+            end = int((i + 1) * n / steps)
             seg_t = t[start:end] - t[start]
             wave[start:end] += np.sign(np.sin(2 * np.pi * freq * seg_t)) * 0.15 * np.exp(-1.5 * seg_t)
 
-        # Arpeggio melody
-        melody = [440, 523, 659, 523, 392, 440, 523, 440]
+        steps = len(melody)
         for i, freq in enumerate(melody):
-            start = int(i * n / 8)
-            end = int((i + 1) * n / 8)
+            start = int(i * n / steps)
+            end = int((i + 1) * n / steps)
             seg_t = t[start:end] - t[start]
             wave[start:end] += np.sin(2 * np.pi * freq * seg_t) * 0.1 * np.exp(-3 * seg_t)
 
-        self._sounds["bgm"] = _to_sound(wave, 0.22)
+        return _to_sound(wave, volume)
 
     def play(self, name: str) -> None:
         if not self.enabled:
@@ -143,18 +162,30 @@ class AudioManager:
         }.get(bomb_id, "bomb")
         self.play(key)
 
-    def start_bgm(self) -> None:
+    def play_bgm(self, name: str = "bgm_play") -> None:
         if not self.enabled:
             return
         if self._bgm_channel is None:
             self._bgm_channel = pygame.mixer.Channel(0)
-        bgm = self._sounds.get("bgm")
-        if bgm and not self._bgm_channel.get_busy():
-            self._bgm_channel.play(bgm, loops=-1)
+        bgm = self._sounds.get(name)
+        if not bgm:
+            return
+        if self._current_bgm == name and self._bgm_channel.get_busy():
+            return
+        self._bgm_channel.stop()
+        self._bgm_channel.play(bgm, loops=-1)
+        self._current_bgm = name
+
+    def start_bgm(self) -> None:
+        self.play_bgm("bgm_play")
+
+    def start_menu_bgm(self) -> None:
+        self.play_bgm("bgm_menu")
 
     def stop_bgm(self) -> None:
         if self._bgm_channel:
             self._bgm_channel.stop()
+        self._current_bgm = None
 
     def toggle(self) -> bool:
         self.enabled = not self.enabled

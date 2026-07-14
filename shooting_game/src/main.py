@@ -36,6 +36,7 @@ class Game:
         self.current_state_name = "title"
         self.current_state = self.states["title"]
         self.current_state.enter()
+        self.audio.start_menu_bgm()
 
     def change_state(self, name: str) -> None:
         self.current_state.exit()
@@ -44,8 +45,8 @@ class Game:
         self.current_state.enter()
         if name == "play":
             self.audio.start_bgm()
-        elif name == "title":
-            self.audio.stop_bgm()
+        else:
+            self.audio.start_menu_bgm()
 
     def run(self) -> None:
         while self.running:
