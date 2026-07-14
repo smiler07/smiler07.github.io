@@ -643,9 +643,8 @@ $Claude = 'C:\Users\yunhy\.local\bin\claude.exe'
 
 ### Current notes for CRQ-20260714-02
 
-- Planning only; no code implementation has started.
-- Content-dependent items remain `[사람 확인 필요]` until the user confirms the exact source material.
 - The deployed site remains the baseline for the new request.
+- Content-dependent items remain `[사람 확인 필요]` until the user confirms the exact source material.
 
 ### Implementation notes for CRQ-20260714-02
 
@@ -654,3 +653,22 @@ $Claude = 'C:\Users\yunhy\.local\bin\claude.exe'
 - The hero section now uses a two-column layout on desktop and collapses cleanly on mobile.
 - The new hero summary card reduces empty space and makes the title area feel more balanced.
 - `CR-015` and `CR-018` remain blocked on content and feature-scope confirmation.
+
+### Deployment snapshot for CRQ-20260714-02
+
+```yaml
+- deployed_commit: 6e7484e
+  public_url: https://smiler07.github.io/
+  public_http: 200
+  current_state: DEPLOYED
+  applied_items:
+    - CR-014
+    - CR-016
+    - CR-017
+    - CR-019
+  remaining_items:
+    - CR-015
+    - CR-018
+  browser_title: "진연형 | Portfolio + Games"
+  blocker: "content sources and exact game feature scope remain open"
+```

@@ -463,7 +463,7 @@ This request came from a post-deployment review of the GitHub Pages site. It is 
 | Source | `deployed-site-review` |
 | Baseline commit | `4b7e6f6` |
 | Baseline URL | `https://smiler07.github.io/` |
-| Current state | `CHANGE_PLANNED` |
+| Current state | `DEPLOYED` |
 | Next loop | `CRL-12-INTAKE-CLASSIFY` |
 | Human confirmation needed | exact public content sources, CV/PDF/image/doc usage, exact game additions |
 
@@ -479,12 +479,12 @@ This request came from a post-deployment review of the GitHub Pages site. It is 
 
 | ID | Request | Categories | Priority | Status |
 |---|---|---|---|---|
-| `CR-014` | Desktop/mobile title and whitespace polish | RESPONSIVE, UI_UX, BUG | HIGH | `CHANGE_PLANNED` |
+| `CR-014` | Desktop/mobile title and whitespace polish | RESPONSIVE, UI_UX, BUG | HIGH | `PASSED` |
 | `CR-015` | CV/PDF/image/doc-based content mapping | DOCUMENT_BASED_CONTENT, CONTENT | HIGH | `HITL_REQUIRED` |
-| `CR-016` | Page structure and navigation refinement | INFORMATION_ARCHITECTURE, MULTI_PAGE_STRUCTURE, NAVIGATION | MEDIUM | `CHANGE_PLANNED` |
-| `CR-017` | Accessibility and readability cleanup | ACCESSIBILITY, UI_UX, PERFORMANCE | MEDIUM | `CHANGE_PLANNED` |
+| `CR-016` | Page structure and navigation refinement | INFORMATION_ARCHITECTURE, MULTI_PAGE_STRUCTURE, NAVIGATION | MEDIUM | `PASSED` |
+| `CR-017` | Accessibility and readability cleanup | ACCESSIBILITY, UI_UX, PERFORMANCE | MEDIUM | `PASSED` |
 | `CR-018` | Game feature additions | NEW_FEATURE, GAME_LOGIC, GAME_CONTROL, GAME_STATE, GAME_ENTITY, GAME_EFFECT | HIGH | `HITL_REQUIRED` |
-| `CR-019` | Deployment-quality regression guard | TEST, DEPLOYMENT | MEDIUM | `CHANGE_PLANNED` |
+| `CR-019` | Deployment-quality regression guard | TEST, DEPLOYMENT | MEDIUM | `PASSED` |
 
 ### 14.4 Human confirmation points
 
@@ -501,7 +501,7 @@ This request came from a post-deployment review of the GitHub Pages site. It is 
 
 ### 14.6 Current conclusion
 
-This is a planning-only update. No code implementation starts yet. Content-dependent items stay marked `[사람 확인 필요]` until the user confirms the exact source material and feature scope.
+This request now has a deployed safe subset. Content-dependent items stay marked `[사람 확인 필요]` until the user confirms the exact source material and feature scope.
 
 ### 14.7 Applied changes
 
@@ -517,3 +517,14 @@ The following items remain open and still require confirmation before implementa
 - `CR-018` exact game feature additions
 
 `CR-019` deployment-quality regression guard was verified through local tests and public HTTP checks during the same loop.
+
+### 14.8 Deployment result
+
+| Field | Value |
+|---|---|
+| Deployed commit | `6e7484e` |
+| Public URL | `https://smiler07.github.io/` |
+| Public HTTP | `200` |
+| Browser-visible title | `진연형 | Portfolio + Games` |
+| Applied status | `CR-014`, `CR-016`, `CR-017`, `CR-019` PASSED |
+| Still open | `CR-015`, `CR-018` remain `HITL_REQUIRED` |
