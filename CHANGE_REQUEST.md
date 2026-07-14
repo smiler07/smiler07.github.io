@@ -528,3 +528,7 @@ The following items remain open and still require confirmation before implementa
 | Browser-visible title | `진연형 | Portfolio + Games` |
 | Applied status | `CR-014`, `CR-016`, `CR-017`, `CR-019` PASSED |
 | Still open | `CR-015`, `CR-018` remain `HITL_REQUIRED` |
+
+### 14.9 Follow-up removal
+
+The user also requested removing the `Projects` item and the `Current Focus` block. That follow-up was applied in the current working tree and will be included in the next deployment commit as a small UI-only cleanup.

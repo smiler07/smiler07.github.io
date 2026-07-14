@@ -672,3 +672,9 @@ $Claude = 'C:\Users\yunhy\.local\bin\claude.exe'
   browser_title: "진연형 | Portfolio + Games"
   blocker: "content sources and exact game feature scope remain open"
 ```
+
+### Follow-up UI cleanup note
+
+- `Projects` navigation removal requested by the user
+- `Current Focus` hero card removal requested by the user
+- These changes are in the working tree and will be deployed with the next commit

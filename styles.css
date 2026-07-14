@@ -162,11 +162,11 @@ button {
 .hero {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr);
-  gap: clamp(1.25rem, 4vw, 3rem);
-  align-items: center;
-  min-height: min(90svh, 56rem);
-  padding-block: clamp(4rem, 8vw, 7rem);
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+  align-items: start;
+  min-height: auto;
+  padding-block: clamp(4rem, 8vw, 6rem);
 }
 
 .eyebrow,
@@ -227,27 +227,6 @@ h3 {
   flex-wrap: wrap;
   gap: 0.8rem;
   margin-top: 2rem;
-}
-
-.hero-panel {
-  align-self: stretch;
-}
-
-.hero-panel h2 {
-  margin-bottom: 0.75rem;
-  font-size: clamp(1.7rem, 3vw, 2.6rem);
-}
-
-.hero-notes {
-  display: grid;
-  gap: 0.8rem;
-  padding-left: 1.1rem;
-  margin: 1rem 0 0;
-  color: var(--muted);
-}
-
-.hero-notes li {
-  padding-left: 0.35rem;
 }
 
 .button {
@@ -953,14 +932,11 @@ body {
   .site-nav a { padding-inline: 0.55rem; font-size: 0.9rem; }
   .about-grid { grid-template-columns: 1fr; }
   .hero { grid-template-columns: 1fr; min-height: auto; }
-  .hero-panel { order: 2; }
 }
 
 @media (max-width: 47.99rem) {
   .hero::before { top: 9%; right: 4%; }
   .hero { padding-block: 3.25rem 4rem; }
-  .hero-panel { padding: 1rem; }
-  .hero-panel h2 { font-size: 1.4rem; }
   .career-chips { gap: 0.5rem; }
   .career-chips li { font-size: 0.75rem; }
   .timeline::before { left: 0.45rem; }
