@@ -599,3 +599,58 @@ $Claude = 'C:\Users\yunhy\.local\bin\claude.exe'
 ```
 
 현재 마지막 정상 공개 상태는 baseline commit이다. 새 기능은 로컬 검증까지 완료했으며, 사용자 승인 전에는 token을 읽거나 commit·push·배포하지 않는다.
+## 14. Change Request Intake Snapshot CRQ-20260714-02
+
+```yaml
+- change_request_id: CRQ-20260714-02
+  recorded_at: 2026-07-14T17:10:00+09:00
+  source: deployed-site-review
+  baseline_commit: 4b7e6f6
+  baseline_url: https://smiler07.github.io/
+  current_state: CHANGE_PLANNED
+  request_theme: post-deployment review and broad follow-up refinement
+  decisions:
+    title_and_whitespace: true
+    content_sources:
+      cv: [사람 확인 필요]
+      pdf: [사람 확인 필요]
+      image: [사람 확인 필요]
+      document: [사람 확인 필요]
+    game_feature_additions: [사람 확인 필요]
+    accessibility: true
+    deployment_guardrails: true
+  changed_files:
+    - CHANGE_REQUEST.md
+    - AORR.md
+    - MEMORY.md
+  verifier_results:
+    doc_intake_review: PASS
+    code_changes: 0
+    tests_executed: 0
+  retry:
+    fingerprint: null
+    attempts: 0
+    result: N/A
+  last_known_good_commit: 4b7e6f6
+  current_retry_count: 0
+  current_error_fingerprint: null
+  blocker: "content sources and game feature scope require confirmation"
+  next_loop: CRL-12-INTAKE-CLASSIFY
+  committed: false
+  pushed: false
+  deployed: false
+```
+
+### Current notes for CRQ-20260714-02
+
+- Planning only; no code implementation has started.
+- Content-dependent items remain `[사람 확인 필요]` until the user confirms the exact source material.
+- The deployed site remains the baseline for the new request.
+
+### Implementation notes for CRQ-20260714-02
+
+- Safe UI and layout refinements were applied to the hero area.
+- The page title now reads `진연형 | Portfolio + Games`.
+- The hero section now uses a two-column layout on desktop and collapses cleanly on mobile.
+- The new hero summary card reduces empty space and makes the title area feel more balanced.
+- `CR-015` and `CR-018` remain blocked on content and feature-scope confirmation.

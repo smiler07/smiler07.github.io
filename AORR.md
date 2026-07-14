@@ -936,3 +936,40 @@ Retry 기록:
 - 동일 Verifier 재실행 및 Snake·전체 viewport 회귀 검증 통과
 
 현재 Stop 사유는 없다. commit, push, GitHub Pages 재배포를 실행했고 공개 URL 검증까지 완료했다.
+## 14. Change Request Loop Plan - CRQ-20260714-02
+
+### 14.1 Request intake
+
+`CRQ-20260714-02` is the follow-up request received after the deployed site review. The intent is to regroup the requested fixes into a new change plan instead of implementing code immediately.
+
+| Field | Value |
+|---|---|
+| Change Request ID | `CRQ-20260714-02` |
+| Source | `deployed-site-review` |
+| Baseline commit | `4b7e6f6` |
+| Baseline URL | `https://smiler07.github.io/` |
+| Current state | `CHANGE_PLANNED` |
+| Next loop | `CRL-12-INTAKE-CLASSIFY` |
+| HITL | exact public content, document sources, and game feature scope |
+
+### 14.2 Change item baseline
+
+| Loop ID | Change Item | Act | Observe | Reason | Status |
+|---|---|---|---|---|---|
+| `CR-014` | Desktop/mobile title and whitespace polish | adjust spacing, hierarchy, and placement | viewport spacing and overflow | RESPONSIVE, UI_UX, BUG | `CHANGE_PLANNED` |
+| `CR-015` | CV/PDF/image/doc-based content mapping | confirm available sources and placement | approved source list | DOCUMENT_BASED_CONTENT, CONTENT | `HITL_REQUIRED` |
+| `CR-016` | Page structure and navigation refinement | review section order and nav flow | landmark order and internal links | INFORMATION_ARCHITECTURE, NAVIGATION, MULTI_PAGE_STRUCTURE | `CHANGE_PLANNED` |
+| `CR-017` | Accessibility and readability cleanup | contrast, spacing, and text flow | keyboard flow, reading comfort | ACCESSIBILITY, PERFORMANCE, UI_UX | `CHANGE_PLANNED` |
+| `CR-018` | Game feature additions | define the exact feature scope | confirmed feature list | NEW_FEATURE, GAME_LOGIC, GAME_CONTROL, GAME_STATE, GAME_ENTITY, GAME_EFFECT | `HITL_REQUIRED` |
+| `CR-019` | Deployment-quality regression guard | preserve the deployed baseline | HTTP 200, console, viewport, smoke tests | TEST, DEPLOYMENT | `CHANGE_PLANNED` |
+
+### 14.3 Human confirmation
+
+- Public content sources
+- CV/PDF/image/document usage
+- Exact game additions
+- Whether title/whitespace belongs to content, layout, or both
+
+### 14.4 Next step
+
+The next loop is `CRL-12-INTAKE-CLASSIFY`. It should only split the request into concrete items and mark unknowns. No implementation starts yet.

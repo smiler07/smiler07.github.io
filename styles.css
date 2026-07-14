@@ -160,10 +160,13 @@ button {
 }
 
 .hero {
-  min-height: calc(100vh - 4.5rem);
+  position: relative;
   display: grid;
-  align-content: center;
-  padding-block: clamp(5rem, 10vw, 9rem);
+  grid-template-columns: minmax(0, 1.15fr) minmax(18rem, 0.85fr);
+  gap: clamp(1.25rem, 4vw, 3rem);
+  align-items: center;
+  min-height: min(90svh, 56rem);
+  padding-block: clamp(4rem, 8vw, 7rem);
 }
 
 .eyebrow,
@@ -191,9 +194,9 @@ h3 {
 }
 
 h1 {
-  max-width: 13ch;
-  margin-bottom: 1.4rem;
-  font-size: clamp(2.7rem, 8vw, 6.4rem);
+  max-width: 11ch;
+  margin-bottom: 1.1rem;
+  font-size: clamp(2.55rem, 7vw, 6.2rem);
   letter-spacing: -0.065em;
 }
 
@@ -215,11 +218,36 @@ h3 {
   font-size: clamp(1.05rem, 2vw, 1.25rem);
 }
 
+.hero-copy-block {
+  min-width: 0;
+}
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
   margin-top: 2rem;
+}
+
+.hero-panel {
+  align-self: stretch;
+}
+
+.hero-panel h2 {
+  margin-bottom: 0.75rem;
+  font-size: clamp(1.7rem, 3vw, 2.6rem);
+}
+
+.hero-notes {
+  display: grid;
+  gap: 0.8rem;
+  padding-left: 1.1rem;
+  margin: 1rem 0 0;
+  color: var(--muted);
+}
+
+.hero-notes li {
+  padding-left: 0.35rem;
 }
 
 .button {
@@ -924,10 +952,15 @@ body {
   .site-nav { gap: 0.1rem; }
   .site-nav a { padding-inline: 0.55rem; font-size: 0.9rem; }
   .about-grid { grid-template-columns: 1fr; }
+  .hero { grid-template-columns: 1fr; min-height: auto; }
+  .hero-panel { order: 2; }
 }
 
 @media (max-width: 47.99rem) {
   .hero::before { top: 9%; right: 4%; }
+  .hero { padding-block: 3.25rem 4rem; }
+  .hero-panel { padding: 1rem; }
+  .hero-panel h2 { font-size: 1.4rem; }
   .career-chips { gap: 0.5rem; }
   .career-chips li { font-size: 0.75rem; }
   .timeline::before { left: 0.45rem; }
