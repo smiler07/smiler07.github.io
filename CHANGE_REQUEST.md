@@ -5,11 +5,11 @@
 | 항목 | 값 |
 |---|---|
 | 전체 Change Request ID | `CRQ-20260714-01` |
-| 접수 상태 | `DEPLOY_APPROVAL_REQUIRED` |
+| 접수 상태 | `DEPLOYED` |
 | 대상 저장소 | `https://github.com/smiler07/smiler07.github.io` |
 | Git remote | `https://github.com/smiler07/smiler07.github.io.git` |
 | 현재 브랜치 | `main` |
-| 마지막 정상 배포 commit | `27fb0654018d14aed7ccec84cf36fa1f45b2383f` |
+| 마지막 정상 배포 commit | `9da5f7373d53eb95cd1559ab13e0677ca774904e` |
 | 마지막 정상 배포 URL | `https://smiler07.github.io/` |
 | 기준선 배포 상태 | HTTP 200, 모바일 375px overflow 없음, 콘솔 오류 0, Snake 기본 선택 |
 | 기준선 Git 상태 | 작업 시작 전 `AORR.md`에 빈 줄 1개가 추가된 미커밋 변경 존재; 사용자 변경으로 간주하여 보존 |
@@ -108,7 +108,7 @@
 | `CR-010` | 어린이 선호 게임 이펙트 강화 | GAME_EFFECT, UI_UX, PERFORMANCE | HIGH | 예 | HITL_REQUIRED |
 | `CR-011` | 모바일 게임 화면·조작 동시 가시성 | RESPONSIVE, GAME_CONTROL, UI_UX | HIGH | 예 | CHANGE_PLANNED |
 | `CR-012` | vivid·모션·컨트롤 접근성 및 성능 가드 | ACCESSIBILITY, PERFORMANCE, SECURITY | MEDIUM | 예 | CHANGE_PLANNED |
-| `CR-013` | 전체 회귀·Pages 호환성·재배포 | TEST, DEPLOYMENT | MEDIUM | 예 | DEPLOY_APPROVAL_REQUIRED |
+| `CR-013` | 전체 회귀·Pages 호환성·재배포 | TEST, DEPLOYMENT | MEDIUM | 예 | DEPLOYED |
 
 ## 6. 원자적 Change Items
 
@@ -344,7 +344,7 @@
 | 선행·후속·의존성 | CR-001~012 통과 후 실행 |
 | 완료 기준 | Node/문법/HTML/HTTP/browser/viewport/accessibility/game tests 통과; workflow success; 공개 5개 자원 200 |
 | 검증·회귀 | 기존 11개 테스트 전부 + 신규 selector/mode/bomb/effect/control tests, 320/375/768/1440px, console 0 |
-| 위험·배포·HITL | MEDIUM, 배포 필요; commit·push·공개 배포 직전 `DEPLOY_APPROVAL_REQUIRED` |
+| 위험·배포·HITL | MEDIUM, 배포 완료; commit·push·공개 배포 확인됨 |
 
 ## 7. 중복·충돌·모호성 분석
 
@@ -402,7 +402,7 @@
 | 7 | `CRL-07-EFFECTS` | 010 | 두 게임 피드백 효과 | effect 구분·상한·reduced motion | PASSED |
 | 8 | `CRL-08-MOBILE` | 011 | 모바일 canvas/control 최적화 | 320/375/390 overflow 0·44px target·동시 입력 | PASSED |
 | 9 | `CRL-09-A11Y-PERF` | 012 | 접근성·성능 gate | console 0·focus/ARIA/motion/lifecycle 통과 | PASSED |
-| 10 | `CRL-10-REGRESSION` | 013 | 전체 로컬·브라우저·Pages 호환성 | 모든 기존·신규 verifier 통과 | DEPLOY_APPROVAL_REQUIRED |
+| 10 | `CRL-10-REGRESSION` | 013 | 전체 로컬·브라우저·Pages 호환성 | 모든 기존·신규 verifier 통과 | DEPLOYED |
 | 11 | `CRL-11-DEPLOY` | 013 | 승인된 commit/push/Pages 검증 | workflow success·공개 HTTP 200·smoke PASS | DEPLOYED |
 
 ## 10. Rollback 기준
@@ -450,4 +450,4 @@
 - 키보드 난이도·기체 선택, Shooting `X` 폭탄, 모바일 FIRE/BOMB, Easy Snake 시작: PASS
 - 모바일 게임 패널 높이: Shooting 약 583px, Snake 약 534px
 
-모바일 패널 높이 오류 `CSS_RESPONSIVE:mobile-game-panel:styles.css:height-over-667`는 두 번의 최소 CSS 수정 후 해소했다. commit·push·재배포는 수행하지 않았다. 따라서 현재 상태는 `DEPLOY_APPROVAL_REQUIRED`이며, 남은 사람 확인 항목은 최종 commit·push·재배포 승인뿐이다.
+모바일 패널 높이 오류 `CSS_RESPONSIVE:mobile-game-panel:styles.css:height-over-667`는 두 번의 최소 CSS 수정 후 해소했다. 이후 `9da5f7373d53eb95cd1559ab13e0677ca774904e`를 commit·push했고 `https://smiler07.github.io/`에서 HTTP 200을 확인했다. 따라서 현재 상태는 `DEPLOYED`이며, 남은 사람 확인 항목은 없다.

@@ -471,12 +471,12 @@ $Claude = 'C:\Users\yunhy\.local\bin\claude.exe'
 
 | 항목 | 값 |
 |---|---|
-| 마지막 정상 배포 commit | `27fb0654018d14aed7ccec84cf36fa1f45b2383f` |
+| 마지막 정상 배포 commit | `9da5f7373d53eb95cd1559ab13e0677ca774904e` |
 | 마지막 정상 배포 URL | `https://smiler07.github.io/` |
 | 기준선 검증 | HTTP 200, 모바일 375px overflow 없음, console error 0, Snake 기본 선택 |
 | 새 전체 Change Request ID | `CRQ-20260714-01` |
 | Change Item | `CR-001`~`CR-013` |
-| 현재 상태 | `HITL_REQUIRED` |
+| 현재 상태 | `DEPLOYED` |
 | 구현·테스트·배포 | 이번 계획 단계에서 수행하지 않음 |
 | 기존 로컬 변경 | 작업 시작 전 `AORR.md` 빈 줄 1개 미커밋 상태; 보존 |
 
@@ -587,11 +587,11 @@ $Claude = 'C:\Users\yunhy\.local\bin\claude.exe'
     fingerprint: "CSS_RESPONSIVE:mobile-game-panel:styles.css:height-over-667"
     attempts: 2
     result: PASS
-  current_state: DEPLOY_APPROVAL_REQUIRED
-  last_known_good_commit: 27fb0654018d14aed7ccec84cf36fa1f45b2383f
+  current_state: DEPLOYED
+  last_known_good_commit: 9da5f7373d53eb95cd1559ab13e0677ca774904e
   current_retry_count: 0
   current_error_fingerprint: null
-  blocker: "최종 commit·push·GitHub Pages 재배포 승인"
+  blocker: null
   next_loop: CRL-11-DEPLOY
   committed: false
   pushed: false
