@@ -58,14 +58,14 @@
 
 | 항목 | 현재 값 |
 |---|---|
-| 현재 상태 | `HITL_REQUIRED` — 정적 shell과 Snake/Shooting Web MVP 검증 통과; 개인 콘텐츠 및 배포 승인 대기 |
-| 완료한 루프 | 새 저장소 L01 구조·원격 확인; AORR/TDD 설계; L02 정적 사이트 기본 구조; L05 Games 선택 허브; Snake 순수 로직·Canvas·키보드·터치; Shooting 순수 로직·Canvas·키보드·터치; 게임 전환 lifecycle; 반응형·로컬 HTTP 회귀 |
-| 다음 루프 | L03: 확인된 이름·직함·소개·기술·프로젝트·연락처 반영; 이후 Pages allowlist 배포 설정 승인 및 최초 배포 |
+| 현재 상태 | `DEPLOYED` — GitHub Actions 정적 allowlist 배포와 공개 URL 회귀 검증 완료 |
+| 완료한 루프 | 새 저장소 L01 구조·원격 확인; AORR/TDD 설계; L02 정적 사이트 기본 구조; L05 Games 선택 허브; Snake 및 Shooting Web MVP; 게임 전환 lifecycle; 반응형·로컬 HTTP; GitHub Pages 최초 배포 |
+| 다음 루프 | `[사람 확인 필요]` 실제 이름·직함·소개·기술·프로젝트·연락처를 반영하는 L03 콘텐츠 개선 |
 | 현재 Retry 횟수 | `0` |
 | 현재 오류 fingerprint | `NONE` |
-| Blocker | L03 개인 콘텐츠 미확정; Pages Source/allowlist 배포 설정과 commit·push·공개 배포 승인 필요 |
-| 마지막 정상 상태 | LOCAL-GAMES-GREEN PASS — Node 11/11, JS 문법, HTML/경로, 로컬 HTTP 5/5, 375/768/1440px overflow 없음, 모바일 메뉴·두 게임 조작·반복 전환 정상, 콘솔 오류 0 |
-| 로컬 변경 | `.gitignore`, `games/**`, `tests/**` 및 기존 정적/문서 파일 변경·미추적 — 사용자 승인 전 commit/push 금지 |
+| Blocker | 배포 blocker 없음; 개인 프로필 콘텐츠만 `[사람 확인 필요]` |
+| 마지막 정상 상태 | DEPLOYED PASS — workflow 29309438285 성공, 공개 URL 및 필수 자원 5/5 HTTP 200, 모바일 Shooting 조작·overflow·콘솔 검증 통과 |
+| 로컬 변경 | 배포 상태 기록을 위한 `MEMORY.md` 갱신 |
 | 구현 상태 | 정적 shell, Games 선택기, Snake와 JavaScript/Canvas Shooting Web MVP 구현 완료; Python/Pygame 원본은 참고 자료로 보존 |
 | Claude 독립 Verifier | Claude Code 2.1.197 설치, 미인증으로 현재 `UNAVAILABLE`; Sonnet 5 확인 불가 |
 
@@ -130,9 +130,9 @@
 - [x] 슈팅 게임 game over 및 재시작 정상
 - [x] `shooting_game/` Python 런타임 없이 Web Shooting 단독 실행
 - [x] `venv`, `.pytest_cache`, `__pycache__`, `*.pyc`가 Git·Pages 배포 대상에서 제외
-- [ ] GitHub Pages에서 공개 URL HTTP 200
-- [ ] 배포 사이트에서 CSS·JavaScript·정적 assets HTTP 200
-- [ ] 배포 사이트에서도 데스크톱·모바일·게임 기능 동일하게 정상
+- [x] GitHub Pages에서 공개 URL HTTP 200
+- [x] 배포 사이트에서 CSS·JavaScript·정적 assets HTTP 200
+- [x] 배포 사이트에서도 데스크톱·모바일·게임 기능 동일하게 정상
 - [x] 비밀정보와 로컬 절대 경로가 배포 파일에 없음
 
 ## 8. Retry Policy
@@ -416,4 +416,51 @@ $Claude = 'C:\Users\yunhy\.local\bin\claude.exe'
     - 표시할 이름·직함·소개·기술·프로젝트·연락 방법
     - GitHub Pages Source 및 allowlist 배포 설정 승인
     - commit, push, 공개 배포 승인
+```
+
+```yaml
+- loop_id: DEPLOY-PAGES-04
+  started_at: 2026-07-14T15:30:00+09:00
+  goal: smiler07/smiler07.github.io에 정적 allowlist를 최초 배포하고 공개 URL 검증
+  start_state: DEPLOY_READY
+  hypothesis: GitHub Actions Pages artifact에 HTML/CSS/브라우저 JS만 포함하면 Python 참고 소스와 비밀정보를 제외한 안전한 배포가 가능함
+  act: token ignore 검증, 승인 파일 commit·push, Pages build_type을 workflow로 설정, Actions 및 공개 사이트 검증
+  changed_files:
+    - .github/workflows/pages.yml
+    - .gitignore
+    - MEMORY.md
+  verifier:
+    - name: staged-secret-contract
+      command: git check-ignore, staged path allowlist, staged credential pattern 검사
+      result: PASS
+      exit_code: 0
+    - name: github-push
+      command: token 값을 출력하지 않는 GIT_ASKPASS 환경으로 main push
+      result: PASS
+      exit_code: 0
+    - name: pages-workflow
+      command: GitHub API workflow run 29309438285 확인
+      result: SUCCESS
+      exit_code: 0
+    - name: public-http
+      command: 공개 /, styles.css, script.js, games/snake.js, games/shooting.js HTTP 검사
+      result: PASS_5_OF_5
+      exit_code: 0
+    - name: deployed-browser
+      command: 공개 사이트 375px Shooting 선택·시작·FIRE·overflow·console 검사
+      result: PASS
+      exit_code: 0
+  test_result: PASS
+  exit_code: 0
+  error_fingerprint: NONE
+  retry_count: 0
+  commit: 45f6ca6d1e41b72ebda1c39de549001c16609e0d
+  workflow_run: https://github.com/smiler07/smiler07.github.io/actions/runs/29309438285
+  pages_url: https://smiler07.github.io/
+  public_http: 200
+  browser_console_errors: 0
+  end_state: DEPLOYED
+  next_action: 실제 개인 프로필 콘텐츠가 제공되면 L03 콘텐츠 개선
+  hitl_required:
+    - 실제 이름·직함·소개·기술·프로젝트·연락 방법
 ```
