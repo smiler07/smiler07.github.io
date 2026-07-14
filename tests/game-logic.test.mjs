@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   createSnakeState,
+  getSnakeConfig,
   setSnakeDirection,
   spawnFood,
   stepSnake,
@@ -10,9 +11,12 @@ import {
 import {
   createShootingState,
   fireShot,
+  getShootingConfig,
   intersects,
+  PLANES,
   spawnEnemy,
   updateShooting,
+  useBomb,
 } from "../games/shooting.js";
 
 test("Snake blocks an immediate reverse and moves one grid cell", () => {
@@ -55,6 +59,14 @@ test("Snake reports collision with its own body", () => {
   state.direction = { x: 0, y: 1 };
   state.nextDirection = { x: 0, y: 1 };
   assert.equal(stepSnake(state, () => 0).status, "gameover");
+});
+
+test("Snake difficulty changes tick speed and hard-mode scoring", () => {
+  assert.ok(getSnakeConfig("easy").stepMs > getSnakeConfig("normal").stepMs);
+  assert.ok(getSnakeConfig("hard").stepMs < getSnakeConfig("normal").stepMs);
+  const hard = createSnakeState({ difficulty: "hard", random: () => 0 });
+  hard.food = { x: hard.snake[0].x + 1, y: hard.snake[0].y };
+  assert.equal(stepSnake(hard, () => 0).score, 20);
 });
 
 test("Shooting player stays inside the logical canvas", () => {
@@ -122,4 +134,34 @@ test("Shooting enemy projectile reduces a life", () => {
   const next = updateShooting(state, 0.016, {}, () => 1);
   assert.equal(next.player.lives, 2);
   assert.equal(next.enemyBullets.length, 0);
+});
+
+test("Shooting difficulty applies lives, spawn rate and score multiplier", () => {
+  const easy = createShootingState({ difficulty: "easy" });
+  const hard = createShootingState({ difficulty: "hard" });
+  assert.equal(easy.player.lives, 5);
+  assert.equal(hard.player.lives, 2);
+  assert.ok(getShootingConfig("easy").spawnInterval > getShootingConfig("hard").spawnInterval);
+  assert.equal(hard.scoreMultiplier, 2);
+});
+
+test("Shooting supports multiple aircraft configurations", () => {
+  assert.deepEqual(Object.keys(PLANES), ["p38", "spitfire", "shinden"]);
+  const rapid = createShootingState({ planeId: "spitfire" });
+  const speed = createShootingState({ planeId: "shinden" });
+  assert.ok(rapid.player.fireRate < createShootingState({ planeId: "p38" }).player.fireRate);
+  assert.ok(speed.player.speed > rapid.player.speed);
+});
+
+test("Shooting bomb starts with three and clears enemies and enemy bullets", () => {
+  const state = createShootingState();
+  state.status = "running";
+  state.enemies = [spawnEnemy(state, () => 0)];
+  state.enemyBullets = [{ x: 10, y: 10, width: 7, height: 10, speed: 0 }];
+  assert.equal(useBomb(state), true);
+  assert.equal(state.bombs, 2);
+  assert.equal(state.enemies.length, 0);
+  assert.equal(state.enemyBullets.length, 0);
+  state.bombs = 0;
+  assert.equal(useBomb(state), false);
 });

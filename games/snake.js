@@ -1,5 +1,9 @@
 const DEFAULT_GRID_SIZE = 20;
-const STEP_MS = 120;
+const DIFFICULTY = {
+  easy: { stepMs: 165, pointsPerFood: 10 },
+  normal: { stepMs: 120, pointsPerFood: 10 },
+  hard: { stepMs: 85, pointsPerFood: 20 },
+};
 
 const DIRECTIONS = {
   up: { x: 0, y: -1 },
@@ -28,7 +32,12 @@ export function spawnFood(gridSize, snake, random = Math.random) {
   return free[index];
 }
 
-export function createSnakeState({ gridSize = DEFAULT_GRID_SIZE, random = Math.random } = {}) {
+export function getSnakeConfig(difficulty = "normal") {
+  return { ...(DIFFICULTY[difficulty] || DIFFICULTY.normal) };
+}
+
+export function createSnakeState({ gridSize = DEFAULT_GRID_SIZE, random = Math.random, difficulty = "normal" } = {}) {
+  const config = getSnakeConfig(difficulty);
   const center = Math.floor(gridSize / 2);
   const snake = [
     { x: center, y: center },
@@ -43,6 +52,8 @@ export function createSnakeState({ gridSize = DEFAULT_GRID_SIZE, random = Math.r
     nextDirection: { ...DIRECTIONS.right },
     food: spawnFood(gridSize, snake, random),
     score: 0,
+    difficulty,
+    pointsPerFood: config.pointsPerFood,
     status: "idle",
   };
 }
@@ -88,7 +99,7 @@ export function stepSnake(state, random = Math.random) {
     snake,
     direction,
     food: ate ? spawnFood(state.gridSize, snake, random) : state.food,
-    score: state.score + (ate ? 10 : 0),
+    score: state.score + (ate ? state.pointsPerFood : 0),
     status: ate && snake.length === state.gridSize ** 2 ? "gameover" : state.status,
   };
 }
@@ -108,7 +119,7 @@ function directionFromKey(key) {
   return mapping[normalized] || null;
 }
 
-export function mountSnakeGame(root, { random = Math.random } = {}) {
+export function mountSnakeGame(root, { random = Math.random, difficulty = "normal" } = {}) {
   const canvas = root.querySelector("canvas");
   const scoreNode = root.querySelector("[data-score]");
   const statusNode = root.querySelector("[data-status]");
@@ -121,11 +132,28 @@ export function mountSnakeGame(root, { random = Math.random } = {}) {
   }
 
   const context = canvas.getContext("2d");
-  let state = createSnakeState({ random });
+  const config = getSnakeConfig(difficulty);
+  let state = createSnakeState({ random, difficulty });
   let frameId = null;
   let lastTime = 0;
   let accumulator = 0;
   let destroyed = false;
+  let sparkles = [];
+
+  function celebrate(cellX, cellY, cellSize) {
+    const colors = ["#ffe45e", "#ff5d8f", "#54f2f2", "#b983ff"];
+    sparkles.push(...Array.from({ length: 18 }, (_, index) => {
+      const angle = (Math.PI * 2 * index) / 18;
+      return {
+        x: (cellX + 0.5) * cellSize,
+        y: (cellY + 0.5) * cellSize,
+        vx: Math.cos(angle) * (38 + (index % 4) * 12),
+        vy: Math.sin(angle) * (38 + (index % 3) * 14),
+        life: 0.65,
+        color: colors[index % colors.length],
+      };
+    }));
+  }
 
   function updateHud() {
     const labels = {
@@ -146,6 +174,13 @@ export function mountSnakeGame(root, { random = Math.random } = {}) {
     context.clearRect(0, 0, size, size);
     context.fillStyle = "#06131f";
     context.fillRect(0, 0, size, size);
+
+    for (let index = 0; index < 14; index += 1) {
+      context.fillStyle = index % 2 ? "rgba(84,242,242,.08)" : "rgba(255,228,94,.08)";
+      context.beginPath();
+      context.arc((index * 71) % size, (index * 113) % size, 3 + (index % 3), 0, Math.PI * 2);
+      context.fill();
+    }
 
     context.strokeStyle = "rgba(255,255,255,.035)";
     context.lineWidth = 1;
@@ -173,6 +208,15 @@ export function mountSnakeGame(root, { random = Math.random } = {}) {
       context.fill();
     });
 
+    sparkles.forEach((particle) => {
+      context.globalAlpha = Math.max(0, particle.life / 0.65);
+      context.fillStyle = particle.color;
+      context.beginPath();
+      context.arc(particle.x, particle.y, 3.5, 0, Math.PI * 2);
+      context.fill();
+    });
+    context.globalAlpha = 1;
+
     if (state.status === "idle" || state.status === "paused" || state.status === "gameover") {
       context.fillStyle = "rgba(3, 10, 18, .64)";
       context.fillRect(0, 0, size, size);
@@ -197,12 +241,27 @@ export function mountSnakeGame(root, { random = Math.random } = {}) {
     if (!lastTime) {
       lastTime = time;
     }
-    accumulator += Math.min(250, time - lastTime);
+    const elapsedMs = Math.min(250, time - lastTime);
+    accumulator += elapsedMs;
     lastTime = time;
 
-    while (accumulator >= STEP_MS && state.status === "running") {
+    const frameDelta = Math.min(0.05, Math.max(0, elapsedMs / 1000));
+    sparkles.forEach((particle) => {
+      particle.x += particle.vx * frameDelta;
+      particle.y += particle.vy * frameDelta;
+      particle.vy += 55 * frameDelta;
+      particle.life -= frameDelta;
+    });
+    sparkles = sparkles.filter((particle) => particle.life > 0);
+
+    while (accumulator >= config.stepMs && state.status === "running") {
+      const previousFood = state.food;
+      const previousScore = state.score;
       state = stepSnake(state, random);
-      accumulator -= STEP_MS;
+      if (state.score > previousScore && previousFood) {
+        celebrate(previousFood.x, previousFood.y, canvas.width / state.gridSize);
+      }
+      accumulator -= config.stepMs;
     }
     render();
     if (state.status === "running") {
@@ -219,7 +278,7 @@ export function mountSnakeGame(root, { random = Math.random } = {}) {
 
   function start() {
     if (state.status === "idle" || state.status === "gameover") {
-      state = createSnakeState({ random });
+      state = createSnakeState({ random, difficulty });
     }
     state.status = "running";
     render();
@@ -237,7 +296,7 @@ export function mountSnakeGame(root, { random = Math.random } = {}) {
   }
 
   function restart() {
-    state = createSnakeState({ random });
+    state = createSnakeState({ random, difficulty });
     state.status = "running";
     accumulator = 0;
     render();

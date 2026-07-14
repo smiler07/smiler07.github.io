@@ -464,3 +464,138 @@ $Claude = 'C:\Users\yunhy\.local\bin\claude.exe'
   hitl_required:
     - 실제 이름·직함·소개·기술·프로젝트·연락 방법
 ```
+
+## 12. Change Request Memory Snapshot — CRQ-20260714-01
+
+### 기준선과 현재 상태
+
+| 항목 | 값 |
+|---|---|
+| 마지막 정상 배포 commit | `27fb0654018d14aed7ccec84cf36fa1f45b2383f` |
+| 마지막 정상 배포 URL | `https://smiler07.github.io/` |
+| 기준선 검증 | HTTP 200, 모바일 375px overflow 없음, console error 0, Snake 기본 선택 |
+| 새 전체 Change Request ID | `CRQ-20260714-01` |
+| Change Item | `CR-001`~`CR-013` |
+| 현재 상태 | `HITL_REQUIRED` |
+| 구현·테스트·배포 | 이번 계획 단계에서 수행하지 않음 |
+| 기존 로컬 변경 | 작업 시작 전 `AORR.md` 빈 줄 1개 미커밋 상태; 보존 |
+
+### 사용자 요청 요약
+
+- 공개 개인명 `smiler07`을 `진연형`으로 변경
+- 삼성전자 S/W 엔지니어, 대표 커리어와 2010년~현재 경력 반영
+- 취미 3개 반영
+- 8세 남아가 좋아할 vivid 디자인과 PC·모바일 콘텐츠 재배치
+- 게임 최초 Snake/Shooting 선택, Easy/Normal/Hard, Shooting 대형 폭탄
+- 어린이 선호 game effect 강화
+- 모바일에서 game canvas와 controls의 동시 가시성·간편 조작
+
+### 참고 자료
+
+- 사용자 요청 원문: `CHANGE_REQUEST.md`에 verbatim 보존
+- 배포 사이트와 현재 HTML/CSS/JS/game modules
+- 기존 Node test 11개 및 배포 실행 기록
+- `shooting_game/` Python/Pygame: 폭탄·효과 개념 참고용, Web runtime 제외
+- CV, 이력서, PDF, Word, 이미지: 프로젝트에서 발견되지 않음
+
+### 새 완료 기준
+
+- 제공된 이름·직함·대표 커리어·3개 경력 구간·모든 하위 항목을 의미 손실 없이 반영
+- 승인된 취미 표현만 공개하고 추가 개인정보를 추론하지 않음
+- 320/375/390/768/1440px overflow·겹침 0, 모바일 controls 44px 이상
+- 최초 game 선택 전 loop 0, 선택 후 active controller/panel 1
+- 승인된 Easy/Normal/Hard 설정이 결정적이고 Normal 회귀 유지
+- 승인된 Bomb stock/control/damage 규칙과 key/touch 동등성
+- bounded effects, reduced-motion, console error 0, 반복 switch/start 누수 0
+- 기존 11개와 신규 tests, 정적 HTTP, Pages allowlist, 공개 smoke 통과
+
+### 루프 실행 순서
+
+`CRL-00-BASELINE → CRL-01-HITL → CRL-02-CONTENT-IA → CRL-03-VISUAL → CRL-04-GAME-ENTRY → CRL-05-DIFFICULTY → CRL-06-BOMB → CRL-07-EFFECTS → CRL-08-MOBILE → CRL-09-A11Y-PERF → CRL-10-REGRESSION → CRL-11-DEPLOY`
+
+- 다음 Step 9에서 즉시 실행 가능한 첫 Loop ID: `CRL-00-BASELINE`.
+- 구현을 시작할 첫 Loop ID: 필수 HITL 답변 후 `CRL-02-CONTENT-IA`.
+
+### Rollback 기준
+
+- 마지막 정상 commit `27fb0654018d14aed7ccec84cf36fa1f45b2383f`와 공개 URL을 기준으로 비교한다.
+- 새 변경이 기존 navigation, Snake/Shooting 핵심 동작, 정적 자원 HTTP 200, console 0 또는 secret exclusion을 깨면 배포 성공으로 판정하지 않는다.
+- 공개 rollback은 사람 승인 후 revert commit 또는 이전 artifact 재배포로 수행하며 destructive Git 명령을 사용하지 않는다.
+
+### 사람 확인 필요
+
+1. `서율이, 서현이랑 놀기` 공개 또는 `아이들과 놀기` 익명화.
+2. vivid 디자인 선호 색·캐릭터·참고 이미지 또는 제안 시안 승인.
+3. 최초 선택이 게임 종류인지 Shooting 기체 선택까지 포함하는지.
+4. 3개 난이도의 적용 게임과 구체 수치·점수 배율.
+5. Bomb 초기 개수, key, 피해/적탄 제거/무적 규칙.
+6. Experience/Hobbies의 상단 navigation 노출 여부.
+7. 구현 완료 후 commit·push·재배포 승인.
+
+```yaml
+- change_request_id: CRQ-20260714-01
+  recorded_at: 2026-07-14T00:00:00+09:00
+  source: deployed-site-review
+  baseline_commit: 27fb0654018d14aed7ccec84cf36fa1f45b2383f
+  baseline_url: https://smiler07.github.io/
+  items: [CR-001, CR-002, CR-003, CR-004, CR-005, CR-006, CR-007, CR-008, CR-009, CR-010, CR-011, CR-012, CR-013]
+  state: HITL_REQUIRED
+  next_loop: CRL-00-BASELINE
+  implementation_started: false
+  tests_executed: false
+  committed: false
+  pushed: false
+  deployed: false
+```
+
+## 13. Change Implementation Snapshot — CRQ-20260714-01
+
+아래 스냅샷이 위의 구현 전 계획보다 최신 상태다.
+
+```yaml
+- change_request_id: CRQ-20260714-01
+  recorded_at: 2026-07-14T16:23:24+09:00
+  baseline_commit: 27fb0654018d14aed7ccec84cf36fa1f45b2383f
+  target_repository: https://github.com/smiler07/smiler07.github.io
+  decisions:
+    public_hobby_text: "서율이, 서현이랑 놀기"
+    initial_game: unselected
+    games: [snake, shooting]
+    shooting_planes: [P-38, Spitfire, Shinden]
+    difficulties_both_games: [easy, normal, hard]
+    bomb: {initial_stock: 3, keyboard: X, mobile: BOMB, effect: clear_all_enemies_and_enemy_bullets}
+    top_navigation: [Home, About, Experience, Hobbies, Projects, Games]
+  changed_files:
+    - index.html
+    - styles.css
+    - script.js
+    - games/snake.js
+    - games/shooting.js
+    - tests/game-logic.test.mjs
+    - AORR.md
+    - MEMORY.md
+    - CHANGE_REQUEST.md
+  verifier_results:
+    node_game_tests: "15/15 PASS"
+    javascript_syntax: PASS
+    content_and_internal_links: PASS
+    local_http_assets: "5/5 HTTP 200"
+    browser_console_errors: 0
+    viewport_overflow_375_768_1440: false
+    keyboard_and_mobile_controls: PASS
+  retry:
+    fingerprint: "CSS_RESPONSIVE:mobile-game-panel:styles.css:height-over-667"
+    attempts: 2
+    result: PASS
+  current_state: DEPLOY_APPROVAL_REQUIRED
+  last_known_good_commit: 27fb0654018d14aed7ccec84cf36fa1f45b2383f
+  current_retry_count: 0
+  current_error_fingerprint: null
+  blocker: "최종 commit·push·GitHub Pages 재배포 승인"
+  next_loop: CRL-11-DEPLOY
+  committed: false
+  pushed: false
+  deployed: false
+```
+
+현재 마지막 정상 공개 상태는 baseline commit이다. 새 기능은 로컬 검증까지 완료했으며, 사용자 승인 전에는 token을 읽거나 commit·push·배포하지 않는다.

@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta
       name="description"
-      content="smiler07의 프로페셔널 포트폴리오와 웹 프로젝트를 소개하는 정적 웹사이트입니다."
+      content="삼성전자 S/W 엔지니어 진연형의 커리어와 웹 게임을 소개하는 프로페셔널 포트폴리오입니다."
     >
-    <title>smiler07 | Professional Portfolio</title>
+    <title>진연형 | S/W Engineer Portfolio</title>
     <link rel="stylesheet" href="./styles.css">
     <script type="module" src="./script.js"></script>
   </head>
@@ -16,7 +16,7 @@
 
     <header class="site-header">
       <div class="nav-shell">
-        <a class="brand" href="#home" aria-label="홈으로 이동">smiler07</a>
+        <a class="brand" href="#home" aria-label="홈으로 이동">진연형</a>
 
         <button
           class="nav-toggle"
@@ -33,6 +33,8 @@
         <nav id="primary-navigation" class="site-nav" aria-label="주요 메뉴">
           <a href="#home">Home</a>
           <a href="#about">About</a>
+          <a href="#experience">Experience</a>
+          <a href="#hobbies">Hobbies</a>
           <a href="#projects">Projects</a>
           <a href="#games">Games</a>
         </nav>
@@ -41,13 +43,21 @@
 
     <main id="main-content">
       <section id="home" class="hero section-shell" aria-labelledby="home-title">
-        <p class="eyebrow">Professional Portfolio</p>
-        <h1 id="home-title">안녕하세요, smiler07입니다.</h1>
+        <p class="eyebrow">Software Engineer · Builder · Facilitator</p>
+        <h1 id="home-title">안녕하세요, 진연형입니다.</h1>
         <p class="hero-copy">
-          프로필 소개와 전문 분야는 콘텐츠 확인 후 이 공간에 반영됩니다.
+          Android Framework에서 Cloud·Backend, SRE, Data와 AIOps까지
+          다양한 S/W 영역을 경험했습니다.
         </p>
+        <ul class="career-chips" aria-label="대표 커리어">
+          <li>Android Framework Developer</li>
+          <li>DevOps Engineer</li>
+          <li>Backend Developer</li>
+          <li>Retail Tech</li>
+          <li>AI facilitator</li>
+        </ul>
         <div class="hero-actions">
-          <a class="button button-primary" href="#projects">프로젝트 보기</a>
+          <a class="button button-primary" href="#experience">커리어 보기</a>
           <a class="button button-secondary" href="#games">Games 살펴보기</a>
         </div>
       </section>
@@ -55,12 +65,93 @@
       <section id="about" class="content-section section-shell" aria-labelledby="about-title">
         <div class="section-heading">
           <p class="eyebrow">About</p>
-          <h2 id="about-title">프로필</h2>
+          <h2 id="about-title">삼성전자 S/W 엔지니어</h2>
         </div>
-        <div class="content-card">
-          <p>
-            경력, 기술, 관심 분야 등 개인 프로필 내용은 확인된 정보를 받은 뒤 추가합니다.
-          </p>
+        <div class="about-grid">
+          <article class="content-card feature-card">
+            <span class="card-icon" aria-hidden="true">⚙</span>
+            <h3>Engineering</h3>
+            <p>Software Engineering, System Engineering과 DevOps Engineering을 함께 다룹니다.</p>
+          </article>
+          <article class="content-card feature-card">
+            <span class="card-icon" aria-hidden="true">☁</span>
+            <h3>Cloud &amp; Data</h3>
+            <p>Cloud·Backend 개발과 서비스 운영, Data Engineering과 분석을 수행합니다.</p>
+          </article>
+          <article class="content-card feature-card">
+            <span class="card-icon" aria-hidden="true">✦</span>
+            <h3>AI &amp; Facilitation</h3>
+            <p>Data Analysis, ML Modeling과 AIOps, AI facilitation을 다룹니다.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="experience" class="content-section section-shell" aria-labelledby="experience-title">
+        <div class="section-heading">
+          <p class="eyebrow">Experience</p>
+          <h2 id="experience-title">경험을 연결하는 커리어</h2>
+          <p class="section-copy">모바일 플랫폼부터 Retail Tech, Cloud·Backend와 AIOps까지 확장해 왔습니다.</p>
+        </div>
+        <ol class="timeline">
+          <li class="timeline-item">
+            <div class="timeline-period">2010.01 — 2017.06</div>
+            <article class="content-card">
+              <p class="card-label">Android Framework</p>
+              <h3>Android Framework 개발</h3>
+              <ul class="detail-list">
+                <li>ActivityManagerService</li>
+                <li>WindowManagerService</li>
+                <li>Multi window</li>
+                <li>Dual screen</li>
+                <li>Lock screen</li>
+                <li>Recents panel</li>
+              </ul>
+            </article>
+          </li>
+          <li class="timeline-item">
+            <div class="timeline-period">2017.07 — 2019.06</div>
+            <article class="content-card">
+              <p class="card-label">Retail Technology</p>
+              <h3>Retail technology support &amp; management</h3>
+              <p>Retailmode application 및 Retail Management Service 기획 및 개발 지원</p>
+              <ul class="detail-list">
+                <li>Retail 매장 내 전시단말 관리 및 기술지원</li>
+                <li>전시단말의 Retail contents 원격 배포</li>
+                <li>매장의 고객 체험 data 분석</li>
+              </ul>
+            </article>
+          </li>
+          <li class="timeline-item">
+            <div class="timeline-period">2019.07 — 현재</div>
+            <article class="content-card">
+              <p class="card-label">Cloud · Backend · AIOps</p>
+              <h3>Cloud / Backend Development &amp; Service operation</h3>
+              <ul class="detail-list">
+                <li>SRE Engineering
+                  <ul>
+                    <li>Software engineering</li>
+                    <li>System engineering</li>
+                    <li>DevOps engineering</li>
+                  </ul>
+                </li>
+                <li>Data Engineering</li>
+                <li>Data Analysis &amp; ML Modeling</li>
+                <li>AIOps</li>
+              </ul>
+            </article>
+          </li>
+        </ol>
+      </section>
+
+      <section id="hobbies" class="content-section section-shell" aria-labelledby="hobbies-title">
+        <div class="section-heading">
+          <p class="eyebrow">Hobbies</p>
+          <h2 id="hobbies-title">일상에 에너지를 더하는 것들</h2>
+        </div>
+        <div class="hobby-grid">
+          <article class="hobby-card"><span aria-hidden="true">🎈</span><h3>함께 놀기</h3><p>서율이, 서현이랑 놀기</p></article>
+          <article class="hobby-card"><span aria-hidden="true">🏊</span><h3>수영</h3><p>수영</p></article>
+          <article class="hobby-card"><span aria-hidden="true">🎵</span><h3>음악과 무대</h3><p>음악듣기/뮤지컬</p></article>
         </div>
       </section>
 
@@ -71,9 +162,9 @@
         </div>
         <div class="project-grid">
           <article class="content-card">
-            <p class="card-label">Content pending review</p>
-            <h3>대표 프로젝트</h3>
-            <p>승인된 프로젝트 이름, 설명과 링크를 다음 콘텐츠 루프에서 추가합니다.</p>
+            <p class="card-label">Interactive Web Project</p>
+            <h3>브라우저 아케이드</h3>
+            <p>HTML Canvas와 JavaScript로 만든 Snake 및 Shooting 게임입니다.</p>
           </article>
         </div>
       </section>
@@ -82,21 +173,25 @@
         <div class="section-heading">
           <p class="eyebrow">Games</p>
           <h2 id="games-title">브라우저 아케이드</h2>
-          <p class="section-copy">게임을 선택하고 키보드 또는 화면 버튼으로 플레이하세요.</p>
+          <p class="section-copy">게임과 난이도를 고른 뒤 키보드 또는 화면 버튼으로 플레이하세요.</p>
         </div>
 
         <div class="game-hub">
+          <div class="game-pick-banner">
+            <span aria-hidden="true">🚀</span>
+            <div><strong>무엇을 플레이할까요?</strong><p id="game-selection-status" aria-live="polite">게임을 먼저 선택하세요.</p></div>
+          </div>
           <div class="game-tabs" role="tablist" aria-label="게임 선택">
             <button
               id="snake-tab"
-              class="game-tab is-active"
+              class="game-tab"
               type="button"
               role="tab"
-              aria-selected="true"
+              aria-selected="false"
               aria-controls="snake-panel"
               data-game="snake"
             >
-              <span aria-hidden="true">S</span>
+              <span aria-hidden="true">🐍</span>
               Snake
             </button>
             <button
@@ -107,12 +202,20 @@
               aria-selected="false"
               aria-controls="shooting-panel"
               data-game="shooting"
-              tabindex="-1"
             >
-              <span aria-hidden="true">▲</span>
+              <span aria-hidden="true">✈</span>
               Shooting
             </button>
           </div>
+
+          <fieldset class="difficulty-picker">
+            <legend>난이도 선택</legend>
+            <div role="radiogroup" aria-label="게임 난이도">
+              <button type="button" role="radio" aria-checked="false" data-difficulty="easy">Easy</button>
+              <button type="button" role="radio" aria-checked="true" data-difficulty="normal" class="is-active">Normal</button>
+              <button type="button" role="radio" aria-checked="false" data-difficulty="hard">Hard</button>
+            </div>
+          </fieldset>
 
           <section
             id="snake-panel"
@@ -120,6 +223,7 @@
             role="tabpanel"
             aria-labelledby="snake-tab"
             data-game-panel="snake"
+            hidden
           >
             <div class="game-intro">
               <div>
@@ -167,9 +271,18 @@
               <dl class="game-hud" aria-label="Shooting 게임 상태">
                 <div><dt>점수</dt><dd data-score>0</dd></div>
                 <div><dt>생명</dt><dd data-lives>3</dd></div>
+                <div><dt>폭탄</dt><dd data-bombs>3</dd></div>
                 <div><dt>상태</dt><dd data-status aria-live="polite">시작 대기</dd></div>
               </dl>
             </div>
+            <fieldset class="plane-picker">
+              <legend>비행기 선택</legend>
+              <div role="radiogroup" aria-label="비행기 기체">
+                <button type="button" role="radio" aria-checked="true" class="is-active" data-plane="p38">P-38<br><small>Balanced</small></button>
+                <button type="button" role="radio" aria-checked="false" data-plane="spitfire">Spitfire<br><small>Rapid</small></button>
+                <button type="button" role="radio" aria-checked="false" data-plane="shinden">Shinden<br><small>Speed</small></button>
+              </div>
+            </fieldset>
             <div class="game-stage game-stage-shooting">
               <canvas width="384" height="448" aria-label="슈팅 게임 화면">
                 Canvas를 지원하는 브라우저가 필요합니다.
@@ -179,6 +292,7 @@
               <button type="button" class="button button-primary" data-action="start">시작</button>
               <button type="button" class="button button-secondary" data-action="pause">일시정지</button>
               <button type="button" class="button button-secondary" data-action="restart">다시 시작</button>
+              <button type="button" class="button bomb-action" data-action="bomb">폭탄 (X)</button>
             </div>
             <div class="shooting-touch-layout" aria-label="Shooting 모바일 조작">
               <div class="touch-controls shooting-directions">
@@ -188,6 +302,7 @@
                 <button type="button" data-control="right" aria-label="오른쪽">→</button>
               </div>
               <button type="button" class="fire-button" data-control="fire">FIRE</button>
+              <button type="button" class="bomb-button" data-control="bomb">BOMB</button>
             </div>
           </section>
         </div>
@@ -196,7 +311,7 @@
 
     <footer class="site-footer">
       <div class="section-shell footer-inner">
-        <p>&copy; <span id="current-year"></span> smiler07</p>
+        <p>&copy; <span id="current-year"></span> 진연형</p>
         <a href="#home">맨 위로</a>
       </div>
     </footer>

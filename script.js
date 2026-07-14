@@ -34,7 +34,7 @@ if (navToggle && navigation) {
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
+    if (event.key === "Escape" && navigation.classList.contains("is-open")) {
       setNavigationOpen(false);
       navToggle.focus();
     }
@@ -53,12 +53,15 @@ if (year) {
 
 const gameTabs = [...document.querySelectorAll("[data-game][role='tab']")];
 const gamePanels = [...document.querySelectorAll("[data-game-panel]")];
+const difficultyButtons = [...document.querySelectorAll("[data-difficulty]")];
+const selectionStatus = document.querySelector("#game-selection-status");
 const gameFactories = {
   snake: mountSnakeGame,
   shooting: mountShootingGame,
 };
 let activeGame = null;
 let activeController = null;
+let activeDifficulty = "normal";
 
 function selectGame(gameName, { focus = false } = {}) {
   if (!gameFactories[gameName] || activeGame === gameName) {
@@ -85,7 +88,11 @@ function selectGame(gameName, { focus = false } = {}) {
   });
 
   const panel = gamePanels.find((item) => item.dataset.gamePanel === gameName);
-  activeController = gameFactories[gameName](panel);
+  activeController = gameFactories[gameName](panel, { difficulty: activeDifficulty });
+  if (selectionStatus) {
+    const label = gameName === "snake" ? "Snake" : "Shooting";
+    selectionStatus.textContent = `${label} · ${activeDifficulty.toUpperCase()} 모드를 선택했습니다.`;
+  }
 }
 
 gameTabs.forEach((tab, index) => {
@@ -102,6 +109,40 @@ gameTabs.forEach((tab, index) => {
   });
 });
 
-if (gameTabs.length && gamePanels.length) {
-  selectGame(gameTabs.find((tab) => tab.getAttribute("aria-selected") === "true")?.dataset.game || "snake");
+function chooseDifficulty(button, { focus = false } = {}) {
+    activeDifficulty = button.dataset.difficulty;
+    difficultyButtons.forEach((item) => {
+      const selected = item === button;
+      item.classList.toggle("is-active", selected);
+      item.setAttribute("aria-checked", String(selected));
+      item.tabIndex = selected ? 0 : -1;
+    });
+    if (focus) button.focus();
+
+    if (activeGame) {
+      const gameToRemount = activeGame;
+      activeController?.destroy();
+      activeController = null;
+      activeGame = null;
+      selectGame(gameToRemount);
+    } else if (selectionStatus) {
+      selectionStatus.textContent = `${activeDifficulty.toUpperCase()} 모드입니다. 게임을 선택하세요.`;
+    }
 }
+
+difficultyButtons.forEach((button, index) => {
+  button.addEventListener("click", () => chooseDifficulty(button));
+  button.addEventListener("keydown", (event) => {
+    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    let nextIndex = index;
+    if (["ArrowLeft", "ArrowUp"].includes(event.key)) nextIndex = (index - 1 + difficultyButtons.length) % difficultyButtons.length;
+    if (["ArrowRight", "ArrowDown"].includes(event.key)) nextIndex = (index + 1) % difficultyButtons.length;
+    if (event.key === "Home") nextIndex = 0;
+    if (event.key === "End") nextIndex = difficultyButtons.length - 1;
+    chooseDifficulty(difficultyButtons[nextIndex], { focus: true });
+  });
+});
+
+gamePanels.forEach((panel) => { panel.hidden = true; });
