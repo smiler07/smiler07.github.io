@@ -71,6 +71,7 @@ class SpriteFactory:
             "heavy": ((255, 240, 150), (255, 160, 40), 6),
             "pellet": ((255, 220, 180), (255, 120, 60), 3),
             "laser": ((255, 200, 200), (255, 60, 80), 2),
+            "violet": ((255, 235, 255), (190, 90, 255), 4),
             "rocket": None,
             "homing": None,
         }
@@ -176,6 +177,11 @@ class SpriteFactory:
             pygame.draw.polygon(s, accent, [(20, 8), (28, 22), (20, 28), (12, 22)])
             pygame.draw.rect(s, (80, 85, 95), (16, 16, 8, 14), border_radius=1)
             pygame.draw.circle(s, (255, 80, 50, 220), (20, 12), 3)
+        elif plane_id == "raiden":
+            pygame.draw.polygon(s, body, [(20, 2), (34, 24), (26, 34), (20, 30), (14, 34), (6, 24)])
+            pygame.draw.polygon(s, accent, [(20, 5), (28, 24), (20, 27), (12, 24)])
+            pygame.draw.polygon(s, (40, 45, 85), [(20, 10), (24, 20), (20, 25), (16, 20)])
+            pygame.draw.circle(s, (230, 180, 255, 240), (20, 12), 3)
         else:
             pygame.draw.ellipse(s, body, (4, 14, 32, 12))
             pygame.draw.polygon(s, accent, [(20, 4), (24, 22), (20, 28), (16, 22)])
@@ -216,6 +222,13 @@ class SpriteFactory:
         pygame.draw.polygon(s, body, [(cx, 8), (cx + 8, 22), (cx + 4, h - 4), (cx - 4, h - 4), (cx - 8, 22)])
         # Cockpit canopy (dark)
         pygame.draw.ellipse(s, (15, 15, 20), (cx - 5, 14, 10, 12))
+        pygame.draw.ellipse(s, (115, 170, 195, 180), (cx - 3, 15, 4, 6))
+        # Panel lines and wing-tip lamps add silhouette detail at arcade scale.
+        pygame.draw.line(s, (150, 155, 165, 180), (cx, 10), (cx, h - 7), 1)
+        pygame.draw.line(s, (105, 110, 120, 160), (4, 18), (cx - 4, 19), 1)
+        pygame.draw.line(s, (105, 110, 120, 160), (w - 4, 18), (cx + 4, 19), 1)
+        pygame.draw.circle(s, (255, 75, 55, 230), (4, 18), 1)
+        pygame.draw.circle(s, (100, 210, 255, 230), (w - 4, 18), 1)
         # Engine exhaust glow (bottom = toward player)
         pygame.draw.ellipse(s, (255, 120, 40, 200), (cx - 5, h - 8, 10, 6))
         pygame.draw.ellipse(s, (255, 200, 80, 255), (cx - 3, h - 6, 6, 4))
@@ -280,6 +293,9 @@ class SpriteFactory:
             "heavy_tank": cls._draw_enemy_heavy_tank,
             "destroyer": cls._draw_enemy_destroyer,
             "pt_boat": cls._draw_enemy_pt_boat,
+            "spark_drone": cls._draw_enemy_spark_drone,
+            "orbiter": cls._draw_enemy_orbiter,
+            "comet": cls._draw_enemy_comet,
         }
         key = f"enemy_unit_{kind}"
         fn = drawers.get(kind, drawers["fighter"])
@@ -294,6 +310,8 @@ class SpriteFactory:
         pygame.draw.polygon(s, (190, 195, 180), [(cx, 10), (cx + 6, 24), (cx, h - 4), (cx - 6, 24)])
         pygame.draw.circle(s, (15, 15, 20), (cx, 18), 4)
         pygame.draw.circle(s, (200, 40, 35), (cx, 20), 5, 1)
+        pygame.draw.line(s, (255, 245, 210, 180), (5, 18), (cx - 5, 18), 1)
+        pygame.draw.line(s, (255, 245, 210, 180), (cx + 5, 18), (w - 5, 18), 1)
         pygame.draw.ellipse(s, (255, 110, 40, 200), (cx - 4, h - 7, 8, 5))
         return cls._outline(s)
 
@@ -320,6 +338,8 @@ class SpriteFactory:
         pygame.draw.line(s, (40, 40, 45), (cx - 8, 28), (cx - 8, h - 2), 2)
         pygame.draw.line(s, (40, 40, 45), (cx + 8, 28), (cx + 8, h - 2), 2)
         pygame.draw.circle(s, (200, 50, 40), (cx, h - 3), 3)
+        pygame.draw.line(s, (155, 160, 170, 170), (6, 22), (cx - 5, 22), 1)
+        pygame.draw.line(s, (155, 160, 170, 170), (cx + 5, 22), (w - 6, 22), 1)
         return cls._outline(s)
 
     @classmethod
@@ -373,8 +393,48 @@ class SpriteFactory:
         return cls._outline(s)
 
     @classmethod
+    def _draw_enemy_spark_drone(cls) -> pygame.Surface:
+        """Cheerful neon scout: readable at speed and non-threatening in silhouette."""
+        s = pygame.Surface((34, 34), pygame.SRCALPHA)
+        pygame.draw.polygon(s, (45, 190, 210), [(17, 3), (30, 13), (26, 27), (17, 31), (8, 27), (4, 13)])
+        pygame.draw.polygon(s, (125, 245, 255), [(17, 7), (24, 15), (17, 22), (10, 15)])
+        pygame.draw.circle(s, (255, 230, 80), (17, 15), 5)
+        pygame.draw.circle(s, (255, 255, 235), (15, 13), 2)
+        for x in (7, 27):
+            pygame.draw.circle(s, (255, 115, 70), (x, 24), 3)
+        return cls._outline(s, (20, 65, 90))
+
+    @classmethod
+    def _draw_enemy_orbiter(cls) -> pygame.Surface:
+        s = pygame.Surface((40, 40), pygame.SRCALPHA)
+        # Six colorful petals around a friendly central reactor.
+        for i in range(6):
+            angle = math.tau * i / 6
+            x, y = int(20 + math.cos(angle) * 12), int(20 + math.sin(angle) * 12)
+            color = ((255, 105, 145), (255, 190, 70), (130, 225, 120))[i % 3]
+            pygame.draw.circle(s, color, (x, y), 7)
+        pygame.draw.circle(s, (75, 75, 125), (20, 20), 10)
+        pygame.draw.circle(s, (190, 150, 255), (20, 20), 6)
+        pygame.draw.circle(s, (255, 255, 255), (18, 18), 2)
+        return cls._outline(s, (55, 35, 95))
+
+    @classmethod
+    def _draw_enemy_comet(cls) -> pygame.Surface:
+        s = pygame.Surface((44, 42), pygame.SRCALPHA)
+        pygame.draw.polygon(s, (255, 115, 95), [(22, 2), (40, 19), (31, 36), (22, 40), (13, 36), (4, 19)])
+        pygame.draw.polygon(s, (255, 205, 85), [(22, 7), (32, 20), (22, 31), (12, 20)])
+        pygame.draw.ellipse(s, (80, 45, 80), (15, 11, 14, 16))
+        pygame.draw.ellipse(s, (215, 235, 255), (18, 13, 8, 7))
+        pygame.draw.circle(s, (255, 245, 200), (22, 33), 3)
+        return cls._outline(s, (115, 35, 45))
+
+    @classmethod
     def boss(cls, boss_id: str = "tank") -> pygame.Surface:
-        return cls.get(f"boss_{boss_id}_v2", lambda: cls._draw_boss(boss_id))
+        def _make() -> pygame.Surface:
+            raw = cls._draw_boss(boss_id)
+            scale = 1.65 if boss_id == "final" else 1.35
+            return pygame.transform.smoothscale(raw, (int(raw.get_width() * scale), int(raw.get_height() * scale)))
+        return cls.get(f"boss_{boss_id}_v3", _make)
 
     @classmethod
     def _draw_boss(cls, boss_id: str) -> pygame.Surface:
@@ -382,6 +442,8 @@ class SpriteFactory:
             return cls._draw_boss_fortress()
         if boss_id == "ace":
             return cls._draw_boss_ace()
+        if boss_id == "final":
+            return cls._draw_boss_final()
         return cls._draw_boss_tank()
 
     @classmethod
@@ -442,6 +504,31 @@ class SpriteFactory:
         return cls._outline(s, (0, 0, 0))
 
     @classmethod
+    def _draw_boss_final(cls) -> pygame.Surface:
+        """The large, colorful finale flagship: a crown-shaped sky cruiser."""
+        s = pygame.Surface((132, 108), pygame.SRCALPHA)
+        cx = 66
+        # Broad crown wings and layered armor plates.
+        pygame.draw.polygon(s, (55, 30, 105), [(cx, 8), (126, 38), (108, 60), (cx, 74), (24, 60), (6, 38)])
+        pygame.draw.polygon(s, (115, 65, 190), [(cx, 14), (112, 40), (cx, 61), (20, 40)])
+        pygame.draw.polygon(s, (72, 45, 135), [(cx, 18), (cx + 26, 46), (cx, 94), (cx - 26, 46)])
+        # Crown fins make the final silhouette distinct and celebratory.
+        for ox, h in ((-26, 20), (0, 30), (26, 20)):
+            pygame.draw.polygon(s, (255, 195, 75), [(cx + ox - 7, 32), (cx + ox, 32 - h), (cx + ox + 7, 32)])
+        # Friendly jewel-like core and cockpit.
+        pygame.draw.ellipse(s, (25, 28, 60), (cx - 16, 38, 32, 25))
+        pygame.draw.ellipse(s, (105, 225, 255), (cx - 10, 41, 20, 14))
+        pygame.draw.ellipse(s, (240, 255, 255), (cx - 5, 43, 10, 7))
+        pygame.draw.circle(s, (255, 105, 220), (cx, 72), 13)
+        pygame.draw.circle(s, (255, 235, 255), (cx, 72), 7)
+        # Six luminous engines across the stern.
+        for ex in (20, 39, 57, 75, 93, 112):
+            pygame.draw.circle(s, (90, 45, 135), (ex, 88), 7)
+            pygame.draw.circle(s, (95, 220, 255), (ex, 90), 4)
+            pygame.draw.circle(s, (255, 245, 180), (ex, 91), 2)
+        return cls._outline(s, (22, 12, 55))
+
+    @classmethod
     def enemy_shadow(cls, large: bool = False) -> pygame.Surface:
         key = "enemy_shadow_lg" if large else "enemy_shadow"
         def _make() -> pygame.Surface:
@@ -455,6 +542,26 @@ class SpriteFactory:
     def gold_bar(cls, size: str = "small") -> pygame.Surface:
         key = f"gold_{size}"
         return cls.get(key, lambda: cls._draw_gold_bar(size))
+
+    @classmethod
+    def treasure(cls, kind: str) -> pygame.Surface:
+        return cls.get(f"treasure_{kind}", lambda: cls._draw_treasure(kind))
+
+    @classmethod
+    def _draw_treasure(cls, kind: str) -> pygame.Surface:
+        specs = {
+            "ruby": ((220, 55, 85), (255, 170, 185), 10),
+            "sapphire": ((50, 130, 235), (170, 230, 255), 10),
+            "gold": ((230, 175, 35), (255, 240, 140), 10),
+            "diamond": ((110, 235, 255), (245, 255, 255), 14),
+        }
+        base, shine, r = specs.get(kind, specs["gold"])
+        s = pygame.Surface((r * 2 + 4, r * 2 + 4), pygame.SRCALPHA)
+        c = r + 2
+        pygame.draw.polygon(s, (*base, 255), [(c, 1), (r * 2 + 2, c), (c, r * 2 + 3), (1, c)])
+        pygame.draw.polygon(s, (*shine, 230), [(c, 3), (c + r - 2, c), (c, c + 2), (c - r + 2, c)])
+        pygame.draw.line(s, (255, 255, 255, 220), (c, 4), (c, c + 1), 2)
+        return cls._outline(s, tuple(max(0, n - 65) for n in base))
 
     @classmethod
     def _draw_gold_bar(cls, size: str) -> pygame.Surface:

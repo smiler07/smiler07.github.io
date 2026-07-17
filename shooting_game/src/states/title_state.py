@@ -57,6 +57,21 @@ class TitleState(GameState):
         sub = font_sub.render("VERTICAL SCROLL SHOOTER", True, (150, 170, 200))
         surface.blit(sub, (LOGIC_W // 2 - sub.get_width() // 2, 155))
 
+        birthday_font = pygame.font.SysFont("malgungothic", 15, bold=True)
+        birthday = birthday_font.render("서율아, 생일 축하해!", True, (255, 185, 235))
+        surface.blit(birthday, birthday.get_rect(center=(LOGIC_W // 2, 190)))
+        letter_font = pygame.font.SysFont("malgungothic", 9, bold=True)
+        letter_lines = (
+            "게임 중간중간 네가 좋아하는 보석들",
+            "다이아몬드 · 사파이어 · 골드 · 루비가 나오니까",
+            "열심히 모아봐!",
+            "그런데 아빠에게는 서율이가 가장 빛나는 보석이야. ♥",
+        )
+        for i, line in enumerate(letter_lines):
+            color = (205, 220, 255) if i < 3 else (255, 205, 235)
+            text = letter_font.render(line, True, color)
+            surface.blit(text, text.get_rect(center=(LOGIC_W // 2, 214 + i * 16)))
+
         if int(self.blink * 2) % 2 == 0:
             prompt = font_sub.render("PRESS ENTER / Z TO START", True, C_HUD)
             surface.blit(prompt, (LOGIC_W // 2 - prompt.get_width() // 2, 340))

@@ -7,8 +7,8 @@ import random
 
 import pygame
 
-from src.config import EXTEND_SCORE, LOGIC_H, LOGIC_W, MAX_POWER, TOTAL_STAGES
-from src.data.stages import STAGES
+from src.config import EXTEND_SCORE, LOGIC_H, LOGIC_W, MAX_POWER
+from src.data.stages import STAGES, TOTAL_STAGES
 from src.entities.bullet import BulletOwner, BulletPool
 from src.entities.enemy import WaveSpawner
 from src.entities.item import ItemManager, ItemType
@@ -38,6 +38,10 @@ class PlayState(GameState):
         self._extend_given = False
         self._stage_clear_timer = 0.0
         self._all_clear = False
+        self.pause_choice = 0
+        self._bomb_boss_hits: set[int] = set()
+        self._all_clear_waiting = False
+        self._victory_time = 0.0
 
     def enter(self) -> None:
         plane_id = self.game.selected_plane or "p38"
@@ -55,7 +59,7 @@ class PlayState(GameState):
         self.bullets = BulletPool()
         self.spawner = WaveSpawner(stage_index)
         self.items = ItemManager()
-        self.bg = ParallaxBackground()
+        self.bg = ParallaxBackground(stage_index)
         self.particles = ParticleSystem()
         self.bombs_fx = BombEffectManager()
         self.hud = HUD()
@@ -64,9 +68,14 @@ class PlayState(GameState):
         self._pattern_t = 0.0
         self._stage_clear_timer = 0.0
         self._all_clear = False
+        self.pause_choice = 0
+        self._bomb_boss_hits.clear()
+        self._all_clear_waiting = False
+        self._victory_time = 0.0
 
         stage = STAGES[stage_index]
         self.hud.show_message(f"STAGE {stage['id']}  {stage['name']}", 2.5)
+        self.hud.show_stage_intro(stage["id"], stage["name"])
         if self.game.audio:
             self.game.audio.start_bgm()
 
@@ -132,6 +141,30 @@ class PlayState(GameState):
         phase = boss.boss_phase
         t = self._pattern_t
 
+        if boss.boss_id == "final":
+            if boss.hp < boss.max_hp * 0.5 and phase < 2:
+                boss.boss_phase = 2
+                phase = 2
+                self.hud.show_message("FINAL PHASE", 1.5)
+            if phase < 1:
+                for i in range(14):
+                    ang = math.radians(t * 55 + i * (360 / 14))
+                    self.bullets.spawn_enemy(boss.x, boss.y + 28, math.cos(ang) * 3.1, math.sin(ang) * 3.1)
+            elif phase < 2:
+                for off in range(-36, 37, 12):
+                    rad = math.atan2(py - boss.y, px - boss.x) + math.radians(off)
+                    self.bullets.spawn_enemy(boss.x, boss.y, math.cos(rad) * 3.55, math.sin(rad) * 3.55)
+                for i in range(8):
+                    ang = math.radians(t * 95 + i * 45)
+                    self.bullets.spawn_enemy(boss.x, boss.y + 20, math.cos(ang) * 2.8, math.sin(ang) * 2.8)
+            else:
+                for i in range(22):
+                    ang = math.radians(t * 78 + i * (360 / 22))
+                    self.bullets.spawn_enemy(boss.x, boss.y, math.cos(ang) * 3.75, math.sin(ang) * 3.75)
+                self.bullets.spawn_enemy_aimed(boss.x - 35, boss.y + 8, px, py, speed=4.0)
+                self.bullets.spawn_enemy_aimed(boss.x + 35, boss.y + 8, px, py, speed=4.0)
+            return
+
         if boss.hp < boss.max_hp * 0.5 and phase < 2:
             boss.boss_phase = 2
             self.hud.show_message("BOSS PHASE 2", 1.5)
@@ -186,9 +219,8 @@ class PlayState(GameState):
                                  building["sprite"].get_width(), building["sprite"].get_height())
                 if b.rect.colliderect(br):
                     b.alive = False
-                    gold = self.bg.damage_building(building)
-                    if gold:
-                        self.items.spawn(building["x"] + 10, building["y"], ItemType.GOLD, gold)
+                    destroyed = self.bg.damage_building(building)
+                    if destroyed:
                         self.particles.emit_explosion(building["x"] + 10, building["y"])
                     break
 
@@ -237,10 +269,10 @@ class PlayState(GameState):
                 self.particles.emit_gold_sparkle(item.x, item.y)
                 if self.game.audio:
                     self.game.audio.play("powerup")
-            elif item.item_type == ItemType.GOLD:
+            elif item.item_type in (ItemType.RUBY, ItemType.SAPPHIRE, ItemType.GOLD, ItemType.DIAMOND):
                 self.score += item.value
                 self.particles.emit_gold_sparkle(item.x, item.y)
-                self.hud.show_gold_popup(item.x, item.y, item.value)
+                self.hud.show_treasure_popup(item.x, item.y, item.value)
 
     def _apply_bomb_damage(self) -> None:
         for rect in self.bombs_fx.get_damage_rects():
@@ -249,7 +281,14 @@ class PlayState(GameState):
                     continue
                 if e.rect.colliderect(rect):
                     if e.is_boss:
-                        e.hp -= 8
+                        # A persistent visual effect must not deal damage every
+                        # frame.  One bomb can strike a boss once for a measured
+                        # amount, keeping bosses threatening at every stage.
+                        boss_key = id(e)
+                        if boss_key in self._bomb_boss_hits:
+                            continue
+                        self._bomb_boss_hits.add(boss_key)
+                        e.hp -= math.ceil(e.max_hp / 3)
                         if e.hp <= 0:
                             self._kill_enemy(e)
                     else:
@@ -264,18 +303,14 @@ class PlayState(GameState):
         if not self.player or not self.player.use_bomb(self.bullets):
             return
         bomb_id = self.player.bomb_id
+        self._bomb_boss_hits.clear()
         self.bombs_fx.trigger(bomb_id, self.player.x, self.player.y)
         self.shake = 0.8
+        self.hud.show_message(f"{self.player.info['bomb_name'].upper()}!", 0.8)
         if self.game.audio:
             self.game.audio.play_bomb(bomb_id)
-        # Immediate small enemies kill on screen (classic bomb)
-        for e in self.spawner.enemies:
-            if e.alive and not e.is_boss:
-                self._kill_enemy(e)
-            elif e.alive and e.is_boss:
-                e.hp -= 12
-                if e.hp <= 0:
-                    self._kill_enemy(e)
+        # Damage, bullet cancellation and explosions begin when the visible
+        # ordnance reaches its target, rather than invisibly on button press.
 
     def _kill_enemy(self, e) -> None:
         e.alive = False
@@ -293,9 +328,25 @@ class PlayState(GameState):
             self.hud.boss_name = None
 
     def update(self, dt: float) -> None:
+        if self._all_clear_waiting:
+            self._victory_time += dt
+            if self.game.input.space_pressed:
+                self.game.stage_index = 0
+                self.game.change_state("title")
+            return
+
         if self.paused:
             if self.game.input.pause_pressed:
                 self.paused = False
+                return
+            if self.game.input.up_pressed or self.game.input.down_pressed:
+                self.pause_choice = 1 - self.pause_choice
+            if self.game.input.confirm_pressed:
+                if self.pause_choice == 0:
+                    self.paused = False
+                else:
+                    self.game.stage_index = 0
+                    self.game.change_state("title")
             return
 
         if self.game.input.pause_pressed:
@@ -326,12 +377,12 @@ class PlayState(GameState):
             self.shake = 0.2 if formation.charge_tier == 1 else 0.35
             if self.game.audio:
                 self.game.audio.play("charge_big" if formation.charge_tier >= 2 else "charge_shot")
-            tier_name = "CHARGE SHOT!" if formation.charge_tier == 1 else "FULL CHARGE!"
+            tier_name = self.player.info["charge_name"] if formation.charge_tier == 1 else f"FULL {self.player.info['charge_name']}!"
             self.hud.show_message(tier_name, 0.6)
 
         if formation.formation:
             self.player.fire_formation(self.bullets)
-            self.hud.show_message("FORMATION!", 0.8)
+            self.hud.show_message(self.player.info["formation_name"], 0.8)
             self.shake = 0.45
             if self.game.audio:
                 self.game.audio.play("formation")
@@ -367,7 +418,12 @@ class PlayState(GameState):
 
         self._enemy_shoot(dt)
         self.bullets.update(dt, self.spawner.enemies)
-        self.bombs_fx.update(dt)
+        impacts = self.bombs_fx.update(dt)
+        if impacts:
+            self.shake = max(self.shake, 0.55)
+        if self.game.audio:
+            for _ in impacts:
+                self.game.audio.play_bomb_impact()
         self._clear_bullets_in_bomb()
         self._apply_bomb_damage()
         self.items.update(dt)
@@ -390,8 +446,7 @@ class PlayState(GameState):
                 if self.score > self.game.hi_score:
                     self.game.hi_score = self.score
                 if self._all_clear:
-                    self.game.stage_index = 0
-                    self.game.change_state("title")
+                    self._all_clear_waiting = True
                 else:
                     self.game.stage_index += 1
                     self.enter()
@@ -425,8 +480,45 @@ class PlayState(GameState):
             overlay.fill((0, 0, 0, 160))
             surface.blit(overlay, (0, 0))
             font = pygame.font.SysFont("consolas", 16, bold=True)
+            font_small = pygame.font.SysFont("consolas", 10, bold=True)
             t = font.render("PAUSED", True, (255, 255, 200))
-            surface.blit(t, (LOGIC_W // 2 - t.get_width() // 2, LOGIC_H // 2))
+            surface.blit(t, t.get_rect(center=(LOGIC_W // 2, LOGIC_H // 2 - 38)))
+            options = ("RESUME", "RETURN TO HOME")
+            for i, label in enumerate(options):
+                selected = i == self.pause_choice
+                color = (255, 210, 70) if selected else (170, 185, 210)
+                prefix = "> " if selected else "  "
+                option = font_small.render(prefix + label, True, color)
+                surface.blit(option, option.get_rect(center=(LOGIC_W // 2, LOGIC_H // 2 + i * 22)))
+            hint = font_small.render("UP/DOWN + ENTER    ESC: RESUME", True, (120, 140, 170))
+            surface.blit(hint, hint.get_rect(center=(LOGIC_W // 2, LOGIC_H // 2 + 56)))
+
+        if self._all_clear_waiting:
+            self._draw_victory(surface)
+
+    def _draw_victory(self, surface: pygame.Surface) -> None:
+        overlay = pygame.Surface((LOGIC_W, LOGIC_H), pygame.SRCALPHA)
+        overlay.fill((8, 10, 36, 210))
+        surface.blit(overlay, (0, 0))
+        # A compact deterministic confetti field keeps the final screen festive
+        # without needing external artwork.
+        colors = ((255, 90, 150), (95, 220, 255), (255, 215, 75), (155, 255, 135))
+        for i in range(44):
+            x = (i * 47 + 19) % LOGIC_W
+            y = int((i * 31 + self._victory_time * (34 + i % 5 * 9)) % LOGIC_H)
+            color = colors[i % len(colors)]
+            pygame.draw.circle(surface, color, (x, y), 2 + i % 3)
+        font_title = pygame.font.SysFont("impact", 28)
+        font_kr = pygame.font.SysFont("malgungothic", 14, bold=True)
+        font_hint = pygame.font.SysFont("consolas", 11, bold=True)
+        title = font_title.render("ALL STAGES CLEAR!", True, (255, 220, 80))
+        line1 = font_kr.render("서율아, 모든 스테이지를 클리어했어!", True, (230, 245, 255))
+        line2 = font_kr.render("정말 멋진 최고의 파일럿이야!", True, (255, 185, 230))
+        hint = font_hint.render("PRESS SPACE TO RETURN HOME", True, (170, 210, 255))
+        surface.blit(title, title.get_rect(center=(LOGIC_W // 2, 155)))
+        surface.blit(line1, line1.get_rect(center=(LOGIC_W // 2, 202)))
+        surface.blit(line2, line2.get_rect(center=(LOGIC_W // 2, 228)))
+        surface.blit(hint, hint.get_rect(center=(LOGIC_W // 2, 300)))
 
     @property
     def shake_offset(self) -> tuple[int, int]:

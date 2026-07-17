@@ -1,4 +1,4 @@
-"""Pickup items: Power, Bomb, Gold."""
+"""Pickup items: power, bombs, and birthday-treasure gems."""
 
 from __future__ import annotations
 
@@ -9,33 +9,29 @@ from enum import Enum, auto
 
 import pygame
 
-from src.config import (
-    GOLD_LARGE,
-    GOLD_MEDIUM,
-    GOLD_SMALL,
-    GOLD_VALUES,
-    GOLD_WEIGHTS,
-    LOGIC_H,
-)
+from src.config import DIAMOND_VALUE, GOLD_VALUE, LOGIC_H, RUBY_VALUE, SAPPHIRE_VALUE, TREASURE_WEIGHTS
 from src.render.sprite_factory import SpriteFactory
 
 
 class ItemType(Enum):
     POWER = auto()
     BOMB = auto()
+    RUBY = auto()
+    SAPPHIRE = auto()
     GOLD = auto()
+    DIAMOND = auto()
 
 
-def gold_size_for_value(value: int) -> str:
-    if value >= GOLD_LARGE:
-        return "large"
-    if value >= GOLD_MEDIUM:
-        return "medium"
-    return "small"
+TREASURES = (
+    (ItemType.RUBY, RUBY_VALUE),
+    (ItemType.SAPPHIRE, SAPPHIRE_VALUE),
+    (ItemType.GOLD, GOLD_VALUE),
+    (ItemType.DIAMOND, DIAMOND_VALUE),
+)
 
 
-def random_gold_value() -> int:
-    return random.choices(list(GOLD_VALUES), weights=GOLD_WEIGHTS, k=1)[0]
+def random_treasure() -> tuple[ItemType, int]:
+    return random.choices(TREASURES, weights=TREASURE_WEIGHTS, k=1)[0]
 
 
 @dataclass
@@ -49,14 +45,9 @@ class Item:
     pulse: float = 0.0
 
     @property
-    def gold_size(self) -> str:
-        return gold_size_for_value(self.value)
-
-    @property
     def rect(self) -> pygame.Rect:
-        if self.item_type == ItemType.GOLD:
-            size_map = {"small": 8, "medium": 12, "large": 16}
-            r = size_map[self.gold_size]
+        if self.item_type in {ItemType.RUBY, ItemType.SAPPHIRE, ItemType.GOLD, ItemType.DIAMOND}:
+            r = 12 if self.item_type == ItemType.DIAMOND else 9
             return pygame.Rect(int(self.x - r), int(self.y - r), r * 2, r * 2)
         return pygame.Rect(int(self.x - 10), int(self.y - 10), 20, 20)
 
@@ -68,20 +59,18 @@ class ItemManager:
     def spawn(self, x: float, y: float, item_type: ItemType, value: int = 0) -> None:
         self.items.append(Item(x, y, item_type, value))
 
-    def spawn_random_gold(self, x: float, y: float, ox: float = 0.0) -> int:
-        """Spawn gold with random size. Returns gold value."""
-        value = random_gold_value()
-        self.items.append(Item(x + ox, y, ItemType.GOLD, value, vy=0.9 + random.uniform(0, 0.4)))
+    def spawn_random_treasure(self, x: float, y: float, ox: float = 0.0) -> int:
+        item_type, value = random_treasure()
+        self.items.append(Item(x + ox, y, item_type, value, vy=0.9 + random.uniform(0, 0.4)))
         return value
 
     def spawn_drops(self, x: float, y: float, drops: list[tuple[ItemType, int]]) -> None:
         for i, (itype, val) in enumerate(drops):
             ox = random.uniform(-12, 12)
             if itype == ItemType.GOLD and val <= 0:
-                self.spawn_random_gold(x, y, ox)
+                self.spawn_random_treasure(x, y, ox)
             else:
-                value = random_gold_value() if itype == ItemType.GOLD and val == 0 else val
-                self.items.append(Item(x + ox, y, itype, value, vy=0.8 + i * 0.1))
+                self.items.append(Item(x + ox, y, itype, val, vy=0.8 + i * 0.1))
 
     def update(self, dt: float) -> None:
         for item in self.items:
@@ -102,7 +91,7 @@ class ItemManager:
             elif item.item_type == ItemType.BOMB:
                 surf = SpriteFactory.bomb_item()
             else:
-                surf = SpriteFactory.gold_bar(item.gold_size)
+                surf = SpriteFactory.treasure(item.item_type.name.lower())
             if scale != 1.0:
                 w, h = surf.get_size()
                 surf = pygame.transform.scale(surf, (int(w * scale), int(h * scale)))

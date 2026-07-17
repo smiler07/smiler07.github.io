@@ -125,6 +125,18 @@ class BulletPool:
         for b in self.bullets:
             if not b.alive:
                 continue
+            # Motion streaks make dense patterns readable: player fire is cool and
+            # precise, hostile fire is warm and immediately legible.
+            speed = math.hypot(b.vx, b.vy) or 1.0
+            tail = 7 if b.owner == BulletOwner.PLAYER else 5
+            tx = int(b.x - b.vx / speed * tail)
+            ty = int(b.y - b.vy / speed * tail)
+            color = (100, 210, 255, 110) if b.owner == BulletOwner.PLAYER else (255, 85, 55, 100)
+            left, top = min(tx, int(b.x)) - 3, min(ty, int(b.y)) - 3
+            width, height = abs(int(b.x) - tx) + 7, abs(int(b.y) - ty) + 7
+            trail = pygame.Surface((width, height), pygame.SRCALPHA)
+            pygame.draw.line(trail, color, (tx - left, ty - top), (int(b.x) - left, int(b.y) - top), 2)
+            surface.blit(trail, (left, top))
             if b.owner == BulletOwner.PLAYER:
                 surf = SpriteFactory.player_bullet_kind(b.kind)
             else:

@@ -19,6 +19,8 @@ from src.config import (
     PLAYER_HIT_RADIUS,
     PLAYER_SPEED,
     PLAYER_SLOW_MULT,
+    START_BOMBS,
+    START_LIVES,
 )
 from src.entities.bullet import BulletPool
 from src.render.sprite_factory import SpriteFactory
@@ -53,8 +55,8 @@ class Player:
         self.x = LOGIC_W / 2
         self.y = LOGIC_H - 80
         self.power = 0
-        self.bombs = 3
-        self.lives = 3
+        self.bombs = START_BOMBS
+        self.lives = START_LIVES
         self.alive = True
         self.invuln = 0.0
         self.shoot_cooldown = 0.0
@@ -64,6 +66,15 @@ class Player:
         self.options: list[OptionDrone] = []
         self._history: list[tuple[float, float]] = []
         self._charge_pulse = 0.0
+
+    def reset_for_new_game(self) -> None:
+        """Explicit new-session reset; stage transitions intentionally do not call this."""
+        self.power_down()
+        self.bombs = START_BOMBS
+        self.lives = START_LIVES
+        self.alive = True
+        self.reset_position()
+        self.invuln = 0.0
 
     @property
     def rect(self) -> pygame.Rect:
@@ -199,7 +210,8 @@ class Player:
         if self.bombs <= 0 or not self.alive:
             return False
         self.bombs -= 1
-        pool.clear_enemy()
+        # The bomb now has a visible delivery phase.  Bullet clearing begins at
+        # impact with the special effect instead of happening invisibly on X.
         self.invuln = 2.0
         return True
 
@@ -234,6 +246,19 @@ class Player:
 
         surf = SpriteFactory.plane(self.plane_id)
         surface.blit(surf, surf.get_rect(center=(int(self.x), int(self.y))))
+        self._draw_callsign(surface)
+
+    def _draw_callsign(self, surface: pygame.Surface) -> None:
+        """A small, low-contrast tail tag keeps the selected craft identifiable."""
+        label = self.info["name"]
+        font = pygame.font.SysFont("malgungothic", 8, bold=True)
+        text = font.render(label, True, (225, 240, 255))
+        tag = pygame.Surface((text.get_width() + 8, text.get_height() + 3), pygame.SRCALPHA)
+        tag.fill((5, 12, 28, 145))
+        pygame.draw.rect(tag, (*self.info["accent"], 170), tag.get_rect(), 1, border_radius=2)
+        tag.blit(text, (4, 1))
+        # Positioned under the tail, never over the hitbox or nose.
+        surface.blit(tag, tag.get_rect(center=(int(self.x), int(self.y + 27))))
 
     def _draw_charge_aura(self, surface: pygame.Surface) -> None:
         ratio = self.charge_ratio

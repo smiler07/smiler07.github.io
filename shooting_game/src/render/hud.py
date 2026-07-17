@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 import pygame
 
-from src.config import C_GOLD, C_HUD, C_HUD_ACCENT, C_HUD_DANGER, GOLD_LARGE, GOLD_MEDIUM, GOLD_SMALL, LOGIC_H, LOGIC_W, MAX_BOMBS, MAX_POWER
+from src.config import C_GOLD, C_HUD, C_HUD_ACCENT, C_HUD_DANGER, DIAMOND_VALUE, GOLD_VALUE, LOGIC_H, LOGIC_W, MAX_BOMBS, MAX_POWER, RUBY_VALUE, SAPPHIRE_VALUE
 
 
 @dataclass
@@ -28,21 +28,25 @@ class HUD:
         self.message: str = ""
         self.message_timer: float = 0.0
         self.popups: list[ScorePopup] = []
+        self.stage_intro: tuple[int, str] | None = None
+        self.stage_intro_timer: float = 0.0
 
     def show_message(self, text: str, duration: float = 2.0) -> None:
         self.message = text
         self.message_timer = duration
 
-    def show_gold_popup(self, x: float, y: float, value: int) -> None:
-        if value >= GOLD_LARGE:
-            color = (255, 240, 120)
-            label = f"+{GOLD_LARGE}"
-        elif value >= GOLD_MEDIUM:
-            color = (255, 200, 80)
-            label = f"+{GOLD_MEDIUM}"
-        else:
-            color = C_GOLD
-            label = f"+{GOLD_SMALL}"
+    def show_stage_intro(self, stage_id: int, stage_name: str) -> None:
+        self.stage_intro = (stage_id, stage_name)
+        self.stage_intro_timer = 2.4
+
+    def show_treasure_popup(self, x: float, y: float, value: int) -> None:
+        labels = {
+            RUBY_VALUE: ("RUBY +200", (255, 105, 130)),
+            SAPPHIRE_VALUE: ("SAPPHIRE +500", (105, 200, 255)),
+            GOLD_VALUE: ("GOLD +1000", (255, 220, 85)),
+            DIAMOND_VALUE: ("DIAMOND +2000", (190, 250, 255)),
+        }
+        label, color = labels.get(value, (f"+{value}", C_GOLD))
         self.popups.append(ScorePopup(x, y, label, 1.2, color))
 
     def update(self, dt: float) -> None:
@@ -50,6 +54,10 @@ class HUD:
             self.message_timer -= dt
             if self.message_timer <= 0:
                 self.message = ""
+        if self.stage_intro_timer > 0:
+            self.stage_intro_timer -= dt
+            if self.stage_intro_timer <= 0:
+                self.stage_intro = None
         alive = []
         for p in self.popups:
             p.life -= dt
@@ -114,6 +122,18 @@ class HUD:
             surface.blit(name_t, (LOGIC_W // 2 - name_t.get_width() // 2, 18))
 
         # Center message
+        if self.stage_intro:
+            stage_id, stage_name = self.stage_intro
+            t = min(1.0, self.stage_intro_timer / 0.25, (2.4 - self.stage_intro_timer) / 0.25)
+            panel = pygame.Surface((LOGIC_W - 48, 70), pygame.SRCALPHA)
+            panel.fill((5, 12, 32, int(190 * t)))
+            pygame.draw.rect(panel, (255, 200, 60, int(220 * t)), panel.get_rect(), 1)
+            surface.blit(panel, (24, LOGIC_H // 2 - 66))
+            stage = self.font_big.render(f"STAGE {stage_id}", True, C_HUD_ACCENT)
+            name = self.font_popup.render(stage_name, True, C_HUD)
+            surface.blit(stage, stage.get_rect(center=(LOGIC_W // 2, LOGIC_H // 2 - 51)))
+            surface.blit(name, name.get_rect(center=(LOGIC_W // 2, LOGIC_H // 2 - 32)))
+
         if self.message:
             msg = self.font_big.render(self.message, True, (255, 255, 200))
             bg = pygame.Surface((msg.get_width() + 16, msg.get_height() + 8), pygame.SRCALPHA)

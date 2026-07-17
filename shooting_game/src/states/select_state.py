@@ -48,7 +48,8 @@ class SelectState(GameState):
     def draw(self, surface: pygame.Surface) -> None:
         surface.fill((15, 20, 45))
 
-        font_title = pygame.font.SysFont("consolas", 16, bold=True)
+        # Malgun Gothic is bundled with Windows; the fallback keeps this readable elsewhere.
+        font_title = pygame.font.SysFont("malgungothic", 16, bold=True)
         font_info = pygame.font.SysFont("consolas", 10)
         font_small = pygame.font.SysFont("consolas", 9)
 
@@ -69,7 +70,7 @@ class SelectState(GameState):
             scale = 1.0 if selected else 0.65
             alpha_card = 220 if selected else 90
 
-            card_w, card_h = int(160 * scale), int(240 * scale)
+            card_w, card_h = int(160 * scale), int(270 * scale)
             card = pygame.Surface((card_w, card_h), pygame.SRCALPHA)
             border = C_HUD_ACCENT if selected else (50, 60, 90)
             card.fill((20, 30, 60, alpha_card))
@@ -85,17 +86,26 @@ class SelectState(GameState):
                 name = font_title.render(info["name"], True, C_HUD)
                 surface.blit(name, name.get_rect(center=(cx, cy + 30)))
 
+                model = font_small.render(info["model"], True, (120, 150, 190))
+                surface.blit(model, model.get_rect(center=(cx, cy + 45)))
+
                 pilot = font_info.render(info["pilot"], True, (150, 160, 180))
-                surface.blit(pilot, pilot.get_rect(center=(cx, cy + 52)))
+                surface.blit(pilot, pilot.get_rect(center=(cx, cy + 59)))
 
-                desc = font_info.render(info["desc"], True, (100, 180, 220))
-                surface.blit(desc, desc.get_rect(center=(cx, cy + 72)))
+                role = font_small.render(f"ROLE: {info['role']}", True, C_HUD_ACCENT)
+                surface.blit(role, role.get_rect(center=(cx, cy + 75)))
 
-                weapon = font_small.render(f"Weapon: {info['weapon'].upper()}", True, (120, 200, 255))
+                weapon = font_small.render(f"MAIN: {info['weapon_name']}", True, (120, 200, 255))
                 surface.blit(weapon, weapon.get_rect(center=(cx, cy + 92)))
 
-                bomb = font_small.render(f"Bomb: {info['bomb_name']}", True, (255, 160, 80))
-                surface.blit(bomb, bomb.get_rect(center=(cx, cy + 108)))
+                charge = font_small.render(f"CHARGE: {info['charge_name']}", True, (180, 230, 255))
+                surface.blit(charge, charge.get_rect(center=(cx, cy + 109)))
+
+                formation = font_small.render(f"FULL: {info['formation_name']}", True, (255, 220, 125))
+                surface.blit(formation, formation.get_rect(center=(cx, cy + 126)))
+
+                bomb = font_small.render(f"BOMB: {info['bomb_name']}", True, (255, 160, 80))
+                surface.blit(bomb, bomb.get_rect(center=(cx, cy + 143)))
             else:
                 surf = SpriteFactory.plane(pid)
                 small = pygame.transform.scale(surf, (int(36 * scale * 2), int(36 * scale * 2)))

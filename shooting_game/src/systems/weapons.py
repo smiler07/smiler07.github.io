@@ -25,6 +25,8 @@ def fire_weapon(pool: BulletPool, plane_id: str, x: float, y: float, power: int)
         _fire_fan(pool, x, y, power, spread, bullet_kind)
     elif weapon == "laser":
         _fire_laser(pool, x, y, power, bullet_kind)
+    elif weapon == "pulse":
+        _fire_pulse(pool, x, y, power, spread, bullet_kind, sub_kind)
     else:
         pool.spawn_player(x, y, kind=bullet_kind)
 
@@ -78,6 +80,12 @@ def fire_charge_shot(
         if tier >= 2:
             pool.spawn_player(x - 10, y, kind="laser", damage=3, speed_mult=1.5)
             pool.spawn_player(x + 10, y, kind="laser", damage=3, speed_mult=1.5)
+    elif weapon == "pulse":
+        for angle in (-12, 0, 12):
+            pool.spawn_player(x, y, angle, kind="charge_l" if tier >= 2 else kind,
+                              damage=base_dmg, speed_mult=1.3)
+        if tier >= 2:
+            pool.spawn_player(x, y, kind="rocket", damage=4, speed_mult=1.2)
     else:
         pool.spawn_player(x, y, kind=kind, damage=base_dmg, speed_mult=speed / 9.0)
 
@@ -87,7 +95,26 @@ def fire_formation(pool: BulletPool, plane_id: str, x: float, y: float, options:
     sub = info["sub_kind"]
     weapon = info["weapon"]
 
-    if weapon == "laser":
+    if plane_id == "p38":
+        # 서율 1호기: wide-area rocket curtain
+        for angle in [-42, -28, -14, 0, 14, 28, 42]:
+            pool.spawn_player(x, y, angle, kind="rocket", damage=3, speed_mult=1.15)
+    elif plane_id == "p51":
+        # 서율 2호기: a lock-on spear with supporting silver cannon fire
+        for off in (-18, 0, 18):
+            pool.spawn_player(x + off, y, kind="homing", damage=4, homing=True, speed_mult=1.15)
+        for angle in (-12, 12):
+            pool.spawn_player(x, y, angle, kind="silver", damage=2, speed_mult=1.25)
+    elif plane_id == "spitfire":
+        # 서율 3호기: fast sweeping tracer wall, not another homing fan.
+        for angle in range(-30, 31, 10):
+            pool.spawn_player(x, y, angle, kind="green", damage=2, speed_mult=1.35)
+        pool.spawn_player(x, y - 10, kind="homing", damage=3, homing=True, speed_mult=1.2)
+    elif plane_id == "raiden":
+        for angle in range(-36, 37, 12):
+            pool.spawn_player(x, y, angle, kind="violet", damage=3, speed_mult=1.25)
+        pool.spawn_player(x, y - 8, kind="rocket", damage=4, speed_mult=1.3)
+    elif weapon == "laser":
         for angle in [-8, 0, 8]:
             pool.spawn_player(x, y, angle, kind="laser", damage=4, speed_mult=1.3)
     elif weapon == "fan":
@@ -175,3 +202,13 @@ def _fire_laser(pool, x, y, power, kind):
     for i in range(beams):
         off = (i - beams // 2) * 8
         pool.spawn_player(x + off, y, kind=kind, damage=1 + power // 3, speed_mult=1.4)
+
+
+def _fire_pulse(pool, x, y, power, spread, kind, sub):
+    for angle in (-spread, 0, spread):
+        pool.spawn_player(x, y, angle, kind=kind, damage=1, speed_mult=1.12)
+    if power >= 2:
+        pool.spawn_player(x - 8, y, -spread // 2, kind=kind, damage=2, speed_mult=1.18)
+        pool.spawn_player(x + 8, y, spread // 2, kind=kind, damage=2, speed_mult=1.18)
+    if power >= 3:
+        pool.spawn_player(x, y - 7, kind=sub, damage=3, speed_mult=1.15)

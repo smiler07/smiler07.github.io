@@ -11,6 +11,8 @@ class InputManager:
         self._confirm_pressed = False
         self._up_pressed = False
         self._down_pressed = False
+        self._pause_pressed = False
+        self._space_pressed = False
         self._charge_start = 0.0
 
     def poll(self) -> list[pygame.event.Event]:
@@ -23,11 +25,15 @@ class InputManager:
         self._confirm_pressed = False
         self._up_pressed = False
         self._down_pressed = False
+        self._pause_pressed = False
+        self._space_pressed = False
 
         for event in events:
             if event.type == pygame.KEYDOWN:
                 if event.key in (pygame.K_z, pygame.K_SPACE):
                     self._fire_pressed = True
+                if event.key == pygame.K_SPACE:
+                    self._space_pressed = True
                 if event.key in (pygame.K_x,):
                     self._bomb_pressed = True
                 if event.key in (pygame.K_RETURN, pygame.K_z, pygame.K_SPACE):
@@ -36,6 +42,8 @@ class InputManager:
                     self._up_pressed = True
                 if event.key == pygame.K_DOWN:
                     self._down_pressed = True
+                if event.key in (pygame.K_ESCAPE, pygame.K_p):
+                    self._pause_pressed = True
             elif event.type == pygame.KEYUP:
                 if event.key in (pygame.K_z, pygame.K_SPACE):
                     self._fire_released = True
@@ -93,4 +101,8 @@ class InputManager:
 
     @property
     def pause_pressed(self) -> bool:
-        return self.keys[pygame.K_ESCAPE] or self.keys[pygame.K_p]
+        return self._pause_pressed
+
+    @property
+    def space_pressed(self) -> bool:
+        return self._space_pressed
